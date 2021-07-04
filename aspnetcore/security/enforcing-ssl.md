@@ -466,7 +466,45 @@ See [Configure trust of HTTPS certificate using Firefox browser](#trust-ff-ba) i
 
 ### Trust the certificate with Fedora 34
 
-See [this GitHub comment](https://github.com/dotnet/aspnetcore/issues/32361#issuecomment-837111639).
+#### Firefox on Fedora
+
+```bash
+echo 'pref("general.config.filename", "firefox.cfg");
+pref("general.config.obscure_value", 0);' > ./autoconfig.js
+
+echo '//Enable policies.json
+lockPref("browser.policies.perUserDir", false);' > firefox.cfg
+
+echo "{
+    \"policies\": {
+        \"Certificates\": {
+            \"Install\": [
+            	\"aspnetcore-localhost-https.crt\"
+            ]
+        }
+    }
+}" > policies.json
+
+dotnet dev-certs https -ep localhost.crt --format PEM
+
+sudo mv autoconfig.js /usr/lib64/firefox/
+sudo mv firefox.cfg /usr/lib64/firefox/
+sudo mv policies.json /usr/lib64/firefox/distribution/
+mkdir -p ~/.mozilla/certificates
+cp localhost.crt ~/.mozilla/certificates/aspnetcore-localhost-https.crt
+rm localhost.crt
+```
+
+#### Trust dotnet-to-dotnet on Fedora
+
+```bash
+sudo cp localhost.crt /etc/pki/tls/certs/localhost.pem
+sudo update-ca-trust
+rm localhost.crt
+```
+
+See [this GitHub comment](https://github.com/dotnet/aspnetcore/issues/32361#issuecomment-837111639) for more information.
+
 ## Trust HTTPS certificate from Windows Subsystem for Linux
 
 The [Windows Subsystem for Linux (WSL)](/windows/wsl/about) generates an HTTPS self-signed development certificate. To configure the Windows certificate store to trust the WSL certificate:
