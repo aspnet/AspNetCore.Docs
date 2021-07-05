@@ -773,6 +773,8 @@
           uid: grpc/deadlines-cancellation
         - name: Transient fault handling
           uid: grpc/retries
+        - name: Client-side load balancing
+          uid: grpc/loadbalancing
         - name: .NET Standard 2.0 support
           uid: grpc/netstandard
     - name: gRPC services with ASP.NET Core
