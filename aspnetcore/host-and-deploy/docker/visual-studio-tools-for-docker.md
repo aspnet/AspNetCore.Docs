@@ -238,3 +238,4 @@ There may be an expectation for the production or release image to be smaller in
 * [Troubleshoot Visual Studio development with Docker](/azure/vs-azure-tools-docker-troubleshooting-docker-errors)
 * [Visual Studio Container Tools GitHub repository](https://github.com/Microsoft/DockerTools)
 * [GC using Docker and small containers](xref:performance/memory#sc)
+* [System.IO.IOException: The configured user limit (128) on the number of inotify instances has been reached](xref:aspnet/core/host-and-deploy/docker#d128)

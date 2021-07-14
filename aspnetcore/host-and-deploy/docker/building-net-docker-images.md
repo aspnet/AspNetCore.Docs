@@ -326,6 +326,7 @@ ENTRYPOINT ["dotnet", "aspnetapp.dll"]
 * [Working with Visual Studio Docker Tools](./visual-studio-tools-for-docker.md)
 * [Debugging with Visual Studio Code](https://code.visualstudio.com/docs/nodejs/debugging-recipes#_debug-nodejs-in-docker-containers)
 * [GC using Docker and small containers](xref:performance/memory#sc)
+* [System.IO.IOException: The configured user limit (128) on the number of inotify instances has been reached](xref:aspnet/core/host-and-deploy/docker#d128)
 
 ## Next steps
 
