@@ -1,0 +1,2047 @@
+# This workflow integrates a collection of open source static analysis tools
+# with GitHub code scanning. For documentation, or to provide feedback, visit
+# https://github.com/github/ossar-action
+name: OSSAR
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ main ]
+  schedule:
+    - cron: '31 18 * * 2'
+
+jobs:
+  OSSAR-Scan:
+    # OSSAR runs on windows-latest.
+    # ubuntu-latest and macos-latest support coming soon
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Ensure a compatible version of dotnet is installed.
+    # The [Microsoft Security Code Analysis CLI](https://aka.ms/mscadocs) is built with dotnet v3.1.201.
+    # A version greater than or equal to v3.1.201 of dotnet must be installed on the agent in order to run this action.
+    # GitHub hosted runners already have a compatible version of dotnet installed and this step may be skipped.
+    # For self-hosted runners, ensure dotnet version 3.1.201 or later is installed by including this action:
+    # - name: Install .NET
+    #   uses: actions/setup-dotnet@v1
+    #   with:
+    #     dotnet-version: '3.1.x'
+
+      # Run open source static analysis tools
+    - name: Run OSSAR
+      uses: github/ossar-action@v1
+      id: ossar
+
+      # Upload results to the Security tab
+    - name: Upload OSSAR results
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: ${{ steps.ossar.outputs.sarifFile }}
+- name: Upload a Build Artifact
+  uses: actions/upload-artifact@v2.2.4
+  with:
+    # Artifact name
+    name: # optional, default is artifact
+    # A file, directory or wildcard pattern that describes what to upload
+    path: 
+    # The desired behavior if no files are found using the provided path.
+Available Options:
+  warn: Output a warning but do not fail the action
+  error: Fail the action with an error message
+  ignore: Do not output any warnings or errors, the action does not fail
+
+    if-no-files-found: # optional, default is warn
+    # Duration after which artifact will expire in days. 0 means using default retention.
+Minimum 1 day. Maximum 90 days unless changed from the repository settings page.
+
+    retention-days: # optional
+    - name: Setup Go environment
+  uses: actions/setup-go@v2.1.3
+  with:
+    # The Go version to download (if necessary) and use. Supports semver spec and ranges.
+    go-version: # optional
+    # Whether to download only stable versions
+    stable: # optional, default is true
+    # Used to pull node distributions from go-versions.  Since there's a default, this is typically not supplied by the user.
+    token: # optional, default is ${{ github.token }}
+    - name: Setup Java JDK
+  uses: actions/setup-java@v2.1.0
+  with:
+    # The Java version to set up. Takes a whole or semver Java version. See examples of supported syntax in README file
+    java-version: 
+    # Java distribution. See the list of supported distributions in README file
+    distribution: 
+    # The package type (jdk, jre, jdk+fx, jre+fx)
+    java-package: # optional, default is jdk
+    # The architecture of the package
+    architecture: # optional, default is x64
+    # Path to where the compressed JDK is located
+    jdkFile: # optional
+    # Set this option if you want the action to check for the latest available version that satisfies the version spec
+    check-latest: # optional
+    # ID of the distributionManagement repository in the pom.xml file. Default is `github`
+    server-id: # optional, default is github
+    # Environment variable name for the username for authentication to the Apache Maven repository. Default is $GITHUB_ACTOR
+    server-username: # optional, default is GITHUB_ACTOR
+    # Environment variable name for password or token for authentication to the Apache Maven repository. Default is $GITHUB_TOKEN
+    server-password: # optional, default is GITHUB_TOKEN
+    # Path to where the settings.xml file will be written. Default is ~/.m2.
+    settings-path: # optional
+    # Overwrite the settings.xml file if it exists. Default is "true".
+    overwrite-settings: # optional, default is true
+    # GPG private key to import. Default is empty string.
+    gpg-private-key: # optional
+    # Environment variable name for the GPG private key passphrase. Default is $GPG_PASSPHRASE.
+    gpg-passphrase: # optional
+    - name: Close Stale Issues
+  uses: actions/stale@v4.0.0
+  with:
+    # Token for the repository. Can be passed in using `{{ secrets.GITHUB_TOKEN }}`.
+    repo-token: # optional, default is ${{ github.token }}
+    # The message to post on the issue when tagging it. If none provided, will not mark issues stale.
+    stale-issue-message: # optional
+    # The message to post on the pull request when tagging it. If none provided, will not mark pull requests stale.
+    stale-pr-message: # optional
+    # The message to post on the issue when closing it. If none provided, will not comment when closing an issue.
+    close-issue-message: # optional
+    # The message to post on the pull request when closing it. If none provided, will not comment when closing a pull requests.
+    close-pr-message: # optional
+    # The number of days old an issue or a pull request can be before marking it stale. Set to -1 to never mark issues or pull requests as stale automatically.
+    days-before-stale: # optional, default is 60
+    # The number of days old an issue can be before marking it stale. Set to -1 to never mark issues as stale automatically. Override "days-before-stale" option regarding only the issues.
+    days-before-issue-stale: # optional
+    # The number of days old a pull request can be before marking it stale. Set to -1 to never mark pull requests as stale automatically. Override "days-before-stale" option regarding only the pull requests.
+    days-before-pr-stale: # optional
+    # The number of days to wait to close an issue or a pull request after it being marked stale. Set to -1 to never close stale issues or pull requests.
+    days-before-close: # optional, default is 7
+    # The number of days to wait to close an issue after it being marked stale. Set to -1 to never close stale issues. Override "days-before-close" option regarding only the issues.
+    days-before-issue-close: # optional
+    # The number of days to wait to close a pull request after it being marked stale. Set to -1 to never close stale pull requests. Override "days-before-close" option regarding only the pull requests.
+    days-before-pr-close: # optional
+    # The label to apply when an issue is stale.
+    stale-issue-label: # optional, default is Stale
+    # The label to apply when an issue is closed.
+    close-issue-label: # optional
+    # The labels that mean an issue is exempt from being marked stale. Separate multiple labels with commas (eg. "label1,label2").
+    exempt-issue-labels: # optional, default is 
+    # The label to apply when a pull request is stale.
+    stale-pr-label: # optional, default is Stale
+    # The label to apply when a pull request is closed.
+    close-pr-label: # optional
+    # The labels that mean a pull request is exempt from being marked as stale. Separate multiple labels with commas (eg. "label1,label2").
+    exempt-pr-labels: # optional, default is 
+    # The milestones that mean an issue or a pull request is exempt from being marked as stale. Separate multiple milestones with commas (eg. "milestone1,milestone2").
+    exempt-milestones: # optional, default is 
+    # The milestones that mean an issue is exempt from being marked as stale. Separate multiple milestones with commas (eg. "milestone1,milestone2"). Override "exempt-milestones" option regarding only the issues.
+    exempt-issue-milestones: # optional, default is 
+    # The milestones that mean a pull request is exempt from being marked as stale. Separate multiple milestones with commas (eg. "milestone1,milestone2"). Override "exempt-milestones" option regarding only the pull requests.
+    exempt-pr-milestones: # optional, default is 
+    # Exempt all issues and pull requests with milestones from being marked as stale. Default to false.
+    exempt-all-milestones: # optional, default is false
+    # Exempt all issues with milestones from being marked as stale. Override "exempt-all-milestones" option regarding only the issues.
+    exempt-all-issue-milestones: # optional, default is 
+    # Exempt all pull requests with milestones from being marked as stale. Override "exempt-all-milestones" option regarding only the pull requests.
+    exempt-all-pr-milestones: # optional, default is 
+    # Only issues or pull requests with all of these labels are checked if stale. Defaults to `` (disabled) and can be a comma-separated list of labels.
+    only-labels: # optional, default is 
+    # Only issues or pull requests with at least one of these labels are checked if stale. Defaults to `` (disabled) and can be a comma-separated list of labels.
+    any-of-labels: # optional, default is 
+    # Only issues with at least one of these labels are checked if stale. Defaults to `` (disabled) and can be a comma-separated list of labels. Override "any-of-labels" option regarding only the issues.
+    any-of-issue-labels: # optional, default is 
+    # Only pull requests with at least one of these labels are checked if stale. Defaults to `` (disabled) and can be a comma-separated list of labels. Override "any-of-labels" option regarding only the pull requests.
+    any-of-pr-labels: # optional, default is 
+    # Only issues with all of these labels are checked if stale. Defaults to `[]` (disabled) and can be a comma-separated list of labels. Override "only-labels" option regarding only the issues.
+    only-issue-labels: # optional, default is 
+    # Only pull requests with all of these labels are checked if stale. Defaults to `[]` (disabled) and can be a comma-separated list of labels. Override "only-labels" option regarding only the pull requests.
+    only-pr-labels: # optional, default is 
+    # The maximum number of operations per run, used to control rate limiting (GitHub API CRUD related).
+    operations-per-run: # optional, default is 30
+    # Remove stale labels from issues and pull requests when they are updated or commented on.
+    remove-stale-when-updated: # optional, default is true
+    # Remove stale labels from issues when they are updated or commented on. Override "remove-stale-when-updated" option regarding only the issues.
+    remove-issue-stale-when-updated: # optional, default is 
+    # Remove stale labels from pull requests when they are updated or commented on. Override "remove-stale-when-updated" option regarding only the pull requests.
+    remove-pr-stale-when-updated: # optional, default is 
+    # Run the processor in debug mode without actually performing any operations on live issues.
+    debug-only: # optional, default is false
+    # The order to get issues or pull requests. Defaults to false, which is descending.
+    ascending: # optional, default is false
+    # Delete the git branch after closing a stale pull request.
+    delete-branch: # optional, default is false
+    # The date used to skip the stale action on issue/pull request created before it (ISO 8601 or RFC 2822).
+    start-date: # optional, default is 
+    # The assignees which exempt an issue or a pull request from being marked as stale. Separate multiple assignees with commas (eg. "user1,user2").
+    exempt-assignees: # optional, default is 
+    # The assignees which exempt an issue from being marked as stale. Separate multiple assignees with commas (eg. "user1,user2"). Override "exempt-assignees" option regarding only the issues.
+    exempt-issue-assignees: # optional, default is 
+    # The assignees which exempt a pull request from being marked as stale. Separate multiple assignees with commas (eg. "user1,user2"). Override "exempt-assignees" option regarding only the pull requests.
+    exempt-pr-assignees: # optional, default is 
+    # Exempt all issues and pull requests with assignees from being marked as stale. Default to false.
+    exempt-all-assignees: # optional, default is false
+    # Exempt all issues with assignees from being marked as stale. Override "exempt-all-assignees" option regarding only the issues.
+    exempt-all-issue-assignees: # optional, default is 
+    # Exempt all pull requests with assignees from being marked as stale. Override "exempt-all-assignees" option regarding only the pull requests.
+    exempt-all-pr-assignees: # optional, default is 
+    # Display some statistics at the end regarding the stale workflow (only when the logs are enabled).
+    enable-statistics: # optional, default is true
+    - name: Close Stale Issues
+  uses: actions/stale@v4.0.0
+  with:
+    # Token for the repository. Can be passed in using `{{ secrets.GITHUB_TOKEN }}`.
+    repo-token: # optional, default is ${{ github.token }}
+    # The message to post on the issue when tagging it. If none provided, will not mark issues stale.
+    stale-issue-message: # optional
+    # The message to post on the pull request when tagging it. If none provided, will not mark pull requests stale.
+    stale-pr-message: # optional
+    # The message to post on the issue when closing it. If none provided, will not comment when closing an issue.
+    close-issue-message: # optional
+    # The message to post on the pull request when closing it. If none provided, will not comment when closing a pull requests.
+    close-pr-message: # optional
+    # The number of days old an issue or a pull request can be before marking it stale. Set to -1 to never mark issues or pull requests as stale automatically.
+    days-before-stale: # optional, default is 60
+    # The number of days old an issue can be before marking it stale. Set to -1 to never mark issues as stale automatically. Override "days-before-stale" option regarding only the issues.
+    days-before-issue-stale: # optional
+    # The number of days old a pull request can be before marking it stale. Set to -1 to never mark pull requests as stale automatically. Override "days-before-stale" option regarding only the pull requests.
+    days-before-pr-stale: # optional
+    # The number of days to wait to close an issue or a pull request after it being marked stale. Set to -1 to never close stale issues or pull requests.
+    days-before-close: # optional, default is 7
+    # The number of days to wait to close an issue after it being marked stale. Set to -1 to never close stale issues. Override "days-before-close" option regarding only the issues.
+    days-before-issue-close: # optional
+    # The number of days to wait to close a pull request after it being marked stale. Set to -1 to never close stale pull requests. Override "days-before-close" option regarding only the pull requests.
+    days-before-pr-close: # optional
+    # The label to apply when an issue is stale.
+    stale-issue-label: # optional, default is Stale
+    # The label to apply when an issue is closed.
+    close-issue-label: # optional
+    # The labels that mean an issue is exempt from being marked stale. Separate multiple labels with commas (eg. "label1,label2").
+    exempt-issue-labels: # optional, default is 
+    # The label to apply when a pull request is stale.
+    stale-pr-label: # optional, default is Stale
+    # The label to apply when a pull request is closed.
+    close-pr-label: # optional
+    # The labels that mean a pull request is exempt from being marked as stale. Separate multiple labels with commas (eg. "label1,label2").
+    exempt-pr-labels: # optional, default is 
+    # The milestones that mean an issue or a pull request is exempt from being marked as stale. Separate multiple milestones with commas (eg. "milestone1,milestone2").
+    exempt-milestones: # optional, default is 
+    # The milestones that mean an issue is exempt from being marked as stale. Separate multiple milestones with commas (eg. "milestone1,milestone2"). Override "exempt-milestones" option regarding only the issues.
+    exempt-issue-milestones: # optional, default is 
+    # The milestones that mean a pull request is exempt from being marked as stale. Separate multiple milestones with commas (eg. "milestone1,milestone2"). Override "exempt-milestones" option regarding only the pull requests.
+    exempt-pr-milestones: # optional, default is 
+    # Exempt all issues and pull requests with milestones from being marked as stale. Default to false.
+    exempt-all-milestones: # optional, default is false
+    # Exempt all issues with milestones from being marked as stale. Override "exempt-all-milestones" option regarding only the issues.
+    exempt-all-issue-milestones: # optional, default is 
+    # Exempt all pull requests with milestones from being marked as stale. Override "exempt-all-milestones" option regarding only the pull requests.
+    exempt-all-pr-milestones: # optional, default is 
+    # Only issues or pull requests with all of these labels are checked if stale. Defaults to `` (disabled) and can be a comma-separated list of labels.
+    only-labels: # optional, default is 
+    # Only issues or pull requests with at least one of these labels are checked if stale. Defaults to `` (disabled) and can be a comma-separated list of labels.
+    any-of-labels: # optional, default is 
+    # Only issues with at least one of these labels are checked if stale. Defaults to `` (disabled) and can be a comma-separated list of labels. Override "any-of-labels" option regarding only the issues.
+    any-of-issue-labels: # optional, default is 
+    # Only pull requests with at least one of these labels are checked if stale. Defaults to `` (disabled) and can be a comma-separated list of labels. Override "any-of-labels" option regarding only the pull requests.
+    any-of-pr-labels: # optional, default is 
+    # Only issues with all of these labels are checked if stale. Defaults to `[]` (disabled) and can be a comma-separated list of labels. Override "only-labels" option regarding only the issues.
+    only-issue-labels: # optional, default is 
+    # Only pull requests with all of these labels are checked if stale. Defaults to `[]` (disabled) and can be a comma-separated list of labels. Override "only-labels" option regarding only the pull requests.
+    only-pr-labels: # optional, default is 
+    # The maximum number of operations per run, used to control rate limiting (GitHub API CRUD related).
+    operations-per-run: # optional, default is 30
+    # Remove stale labels from issues and pull requests when they are updated or commented on.
+    remove-stale-when-updated: # optional, default is true
+    # Remove stale labels from issues when they are updated or commented on. Override "remove-stale-when-updated" option regarding only the issues.
+    remove-issue-stale-when-updated: # optional, default is 
+    # Remove stale labels from pull requests when they are updated or commented on. Override "remove-stale-when-updated" option regarding only the pull requests.
+    remove-pr-stale-when-updated: # optional, default is 
+    # Run the processor in debug mode without actually performing any operations on live issues.
+    debug-only: # optional, default is false
+    # The order to get issues or pull requests. Defaults to false, which is descending.
+    ascending: # optional, default is false
+    # Delete the git branch after closing a stale pull request.
+    delete-branch: # optional, default is false
+    # The date used to skip the stale action on issue/pull request created before it (ISO 8601 or RFC 2822).
+    start-date: # optional, default is 
+    # The assignees which exempt an issue or a pull request from being marked as stale. Separate multiple assignees with commas (eg. "user1,user2").
+    exempt-assignees: # optional, default is 
+    # The assignees which exempt an issue from being marked as stale. Separate multiple assignees with commas (eg. "user1,user2"). Override "exempt-assignees" option regarding only the issues.
+    exempt-issue-assignees: # optional, default is 
+    # The assignees which exempt a pull request from being marked as stale. Separate multiple assignees with commas (eg. "user1,user2"). Override "exempt-assignees" option regarding only the pull requests.
+    exempt-pr-assignees: # optional, default is 
+    # Exempt all issues and pull requests with assignees from being marked as stale. Default to false.
+    exempt-all-assignees: # optional, default is false
+    # Exempt all issues with assignees from being marked as stale. Override "exempt-all-assignees" option regarding only the issues.
+    exempt-all-issue-assignees: # optional, default is 
+    # Exempt all pull requests with assignees from being marked as stale. Override "exempt-all-assignees" option regarding only the pull requests.
+    exempt-all-pr-assignees: # optional, default is 
+    # Display some statistics at the end regarding the stale workflow (only when the logs are enabled).
+    enable-statistics: # optional, default is true
+    - name: Setup .NET Core SDK
+  uses: actions/setup-dotnet@v1.8.1
+  with:
+    # Optional SDK version to use. If not provided, will install global.json version when available. Examples: 2.2.104, 3.1, 3.1.x
+    dotnet-version: # optional
+    # Optional package source for which to set up authentication. Will consult any existing NuGet.config in the root of the repo and provide a temporary NuGet.config using the NUGET_AUTH_TOKEN environment variable as a ClearTextPassword
+    source-url: # optional
+    # Optional OWNER for using packages from GitHub Package Registry organizations/users other than the current repository's owner. Only used if a GPR URL is also provided in source-url
+    owner: # optional
+    # Optional NuGet.config location, if your NuGet.config isn't located in the root of the repo.
+    config-file: # optional
+    # Whether prerelease versions should be matched with non-exact versions (for example 5.0.0-preview.6 being matched by 5, 5.0, 5.x or 5.0.x). Defaults to false if not provided.
+    include-prerelease: # optional
+    - name: Trigger Buildkite Pipeline
+  # You may pin to the exact commit or the version.
+  # uses: buildkite/trigger-pipeline-action@d03b6f2760252274dc019e1298095c3b61baeaf8
+  uses: buildkite/trigger-pipeline-action@v1.2.0
+  - name: Terraform Apply for GorillaStack
+  # You may pin to the exact commit or the version.
+  # uses: GorillaStack/github-action-apply-on-merge@71fab58db0a839b1e9b34e87601a5e4347c52c88
+  uses: GorillaStack/github-action-apply-on-merge@v0.1.0
+  with:
+    # The action type (currently "validate" and "apply" are available)
+    action: # default is validate
+    # The name of the tfstate bucket stack
+    stack_name: # default is github-actions-gorillastack-tfstate
+    # The region in which you deployed the tfstate bucket stack
+    aws_default_region: # default is us-east-1
+    # The AWS Access Key Id for the user with privileges to access the tfstate bucket
+    aws_access_key_id: # default is defaulted-for-everything-but-apply
+    # The AWS Secret Access Key for the user with privileges to access the tfstate bucket
+    aws_secret_access_key: # default is defaulted-for-everything-but-apply
+    # GorillaStack API Key, which is read-write or read-only, tied to your user identity
+    gorillastack_api_key: # default is defaulted-for-everything-but-apply
+    # GorillaStack Team Id, sets context of which team/tenant you are targeting
+    gorillastack_team_id: # default is defaulted-for-everything-but-apply
+    - name: Deploy to Cloudflare Workers with Wrangler
+  # You may pin to the exact commit or the version.
+  # uses: cloudflare/wrangler-action@21f14faa062c33c938e3f37c30d52021bed521cb
+  uses: cloudflare/wrangler-action@1.2.0
+  with:
+    # (Legacy) Your Cloudflare API Key
+    apiKey: # optional
+    # Your Cloudflare API Token
+    apiToken: # optional
+    # (Legacy) Your Cloudflare Email
+    email: # optional
+    # The environment you'd like to publish your Workers project to - must be defined in wrangler.toml
+    environment: # optional
+    # The relative path which Wrangler commands should be run from
+    workingDirectory: # optional
+    # The version of Wrangler you'd like to use to publish your Workers project
+    wranglerVersion: # optional
+    # A new line deliminated string of environment variable names that should be configured as Worker secrets
+    secrets: # optional
+    - name: HashiCorp - Setup Terraform
+  # You may pin to the exact commit or the version.
+  # uses: hashicorp/setup-terraform@d22444889af304a44b997011fbabb81ff705a7b4
+  uses: hashicorp/setup-terraform@v1.2.1
+  with:
+    # The hostname of a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file. Defaults to `app.terraform.io`.
+    cli_config_credentials_hostname: # optional, default is app.terraform.io
+    # The API token for a Terraform Cloud/Enterprise instance to place within the credentials block of the Terraform CLI configuration file.
+    cli_config_credentials_token: # optional
+    # The version of Terraform CLI to install. Instead of full version string you can also specify constraint string starting with "<" (for example `<1.13.0`) to install the latest version satisfying the constraint. A value of `latest` will install the latest version of Terraform CLI. Defaults to `latest`.
+    terraform_version: # optional, default is latest
+    # Whether or not to install a wrapper to wrap subsequent calls of the `terraform` binary and expose its STDOUT, STDERR, and exit code as outputs named `stdout`, `stderr`, and `exitcode` respectively. Defaults to `true`.
+    terraform_wrapper: # optional, default is true
+    - name: Set up gcloud Cloud SDK environment
+  # You may pin to the exact commit or the version.
+  # uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+  uses: google-github-actions/setup-gcloud@v0.2.0
+  with:
+    # Version of the gcloud SDK to install. If unspecified or set to "latest",
+the latest available gcloud SDK version for the target platform will be
+installed. Example: "290.0.1".
+    version: # optional, default is latest
+    # Service account email address to use for authentication. This is required
+for legacy .p12 keys but can be omitted for .json keys. This is usually of
+the format <name>@<project-id>.iam.gserviceaccount.com.
+    service_account_email: # optional
+    # Service account key to use for authentication. This should be the JSON
+formatted private key which can be exported from the Cloud Console. The
+value can be raw or base64-encoded.
+    service_account_key: # optional
+    # ID of the Google Cloud project. If provided, this will configure gcloud to
+use this project ID by default for commands. Individual commands can still
+override the project using the --project flag which takes precedence.
+    project_id: # optional
+    # Export the provided credentials as Google Default Application Credentials.
+This will make the credentials available to later steps via the
+GOOGLE_APPLICATION_CREDENTIALS environment variable. Future steps that
+consume Default Application Credentials will automatically detect and use
+these credentials.
+    export_default_credentials: # optional
+    - name: Lightstep Services Change Report
+  # You may pin to the exact commit or the version.
+  # uses: lightstep/lightstep-action-snapshot@166ec5f31d611858ebe9ed3437848e8fe675fb89
+  uses: lightstep/lightstep-action-snapshot@v0.2.1
+  with:
+    # The organization associated with your Lightstep account (usually your company name)
+    lightstep_organization: # optional
+    # The Lightstep project associated with this repository
+    lightstep_project: # optional
+    # Only show services in the snapshot from this comma-separated list
+    lightstep_service_filter: # optional
+    # The query to use when taking a snapshot
+    lightstep_snapshot_query: # optional
+    # The Lightstep snapshot id to summarize
+    lightstep_snapshot_id: # optional
+    # The Lightstep snapshot id to compare with lightstep_snapshot_id
+    lightstep_snapshot_compare_id: # optional
+    # The key to access the Lightstep Public API
+    lightstep_api_key: # optional
+    # Github API Token
+    github_token: # optional
+    # If set to true, will not add a comment to pull-requests
+    disable_comment: # optional
+    - name: Lightstep Pre-Deploy Check
+  # You may pin to the exact commit or the version.
+  # uses: lightstep/lightstep-action-predeploy@22bec553a6d0fb3de5026acb1159085601f76408
+  uses: lightstep/lightstep-action-predeploy@v0.2.6
+  with:
+    # The organization associated with your Lightstep account (usually your company name)
+    lightstep_organization: # optional
+    # The Lightstep project associated with this repository
+    lightstep_project: # optional
+    # The key to access the Lightstep Public API
+    lightstep_api_key: # optional
+    # The token to access the Rollbar API
+    rollbar_api_token: # optional
+    # The token to access the PagerDuty API
+    pagerduty_api_token: # optional
+    # If set to true, collapse all conditions to a single table row
+    rollup_conditions: # optional
+    # If set to true, will not add a comment to pull-requests
+    disable_comment: # optional
+    - name: AWS CloudFormation "Deploy CloudFormation Stack" Action for GitHub Actions
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/aws-cloudformation-github-deploy@dfbee8a4fec90af61b71bafda3890f8c4a2075ef
+  uses: aws-actions/aws-cloudformation-github-deploy@v1.0.3
+  with:
+    # The name of the CloudFormation stack
+    name: 
+    # The path or URL to the CloudFormation template
+    template: 
+    # The comma-delimited list of stack template capabilities to acknowledge. Defaults to 'CAPABILITY_IAM'
+    capabilities: # optional, default is CAPABILITY_IAM
+    # The parameters to override in the stack inputs. The list is comma-delimited, with each entry formatted as <ParameterName>=<ParameterValue>.
+    parameter-overrides: # optional
+    # If the CloudFormation change set is empty, do not fail. Defaults to '0' (will fail on empty change set)
+    no-fail-on-empty-changeset: # optional, default is 0
+    # Disable rollback of the stack if stack creation fails. Defaults to '0' (will rollback if stack creation fails). This input is only used for stack creation, not for stack update
+    disable-rollback: # optional, default is 0
+    # The amount of time that can pass before the stack status becomes CREATE_FAILED. This input is only used for stack creation, not for stack update
+    timeout-in-minutes: # optional
+    # The comma-delimited list of Amazon SNS topic ARNs to publish stack related events
+    notification-arns: # optional
+    # The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that AWS CloudFormation assumes to create the stack. AWS CloudFormation uses the role's credentials to make calls on your behalf. AWS CloudFormation always uses this role for all future operations on the stack. As long as users have permission to operate on the stack, AWS CloudFormation uses this role even if the users don't have permission to pass it. Ensure that the role grants least privilege. If you don't specify a value, AWS CloudFormation uses the role that was previously associated with the stack
+    role-arn: # optional
+    # Key-value pairs to associate with this stack. This input should be JSON-formatted, for example [ { "Key": "string", "Value": "string" } ]
+    tags: # optional
+    # Whether to enable termination protection on the specified stack. Defaults to '0' (terminated protection will be disabled) This input is only used for stack creation, not for stack update
+    termination-protection: # optional, default is 0
+    - name: Amazon ECR "Login" Action for GitHub Actions
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
+  uses: aws-actions/amazon-ecr-login@v1
+  with:
+    # A comma-delimited list of AWS account IDs that are associated with the ECR registries. If you do not specify a registry, the default ECR registry is assumed.
+    registries: # optional
+    # Whether to skip explicit logout of the registries during post-job cleanup. Exists for backward compatibility on self-hosted runners. Not recommended.
+    skip-logout: # optional
+    - name: EKS on Fargate
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/amazon-eks-fargate@fa91b1ce6e342eb17a1d57df976506d02f074640
+  uses: aws-actions/amazon-eks-fargate@v0.1.1
+  - name: Amazon ECS "Render Task Definition" Action for GitHub Actions
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/amazon-ecs-render-task-definition@97587c9d45a4930bf0e3da8dd2feb2a463cf4a3a
+  uses: aws-actions/amazon-ecs-render-task-definition@v1
+  with:
+    # The path to the ECS task definition JSON file
+    task-definition: 
+    # The name of the container defined in the containerDefinitions section of the ECS task definition
+    container-name: 
+    # The URI of the container image to insert into the ECS task definition
+    image: 
+    - name: "Configure AWS Credentials" Action For GitHub Actions
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
+  uses: aws-actions/configure-aws-credentials@v1
+  with:
+    # AWS Access Key ID. This input is required if running in the GitHub hosted environment. It is optional if running in a self-hosted environment that already has AWS credentials, for example on an EC2 instance.
+    aws-access-key-id: # optional
+    # AWS Secret Access Key. This input is required if running in the GitHub hosted environment. It is optional if running in a self-hosted environment that already has AWS credentials, for example on an EC2 instance.
+    aws-secret-access-key: # optional
+    # AWS Session Token
+    aws-session-token: # optional
+    # AWS Region, e.g. us-east-2
+    aws-region: 
+    # Whether to set the AWS account ID for these credentials as a secret value, so that it is masked in logs. Valid values are 'true' and 'false'. Defaults to true
+    mask-aws-account-id: # optional
+    # Use the provided credentials to assume an IAM role and configure the Actions environment with the assumed role credentials rather than with the provided credentials
+    role-to-assume: # optional
+    # Role duration in seconds (default: 6 hours)
+    role-duration-seconds: # optional
+    # Role session name (default: GitHubActions)
+    role-session-name: # optional
+    # The external ID of the role to assume
+    role-external-id: # optional
+    # Skip session tagging during role assumption
+    role-skip-session-tagging: # optional
+    - name: Amazon ECS "Deploy Task Definition" Action for GitHub Actions
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/amazon-ecs-deploy-task-definition@de0132cf8cdedb79975c6d42b77eb7ea193cf28e
+  uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+  with:
+    # The path to the ECS task definition file to register
+    task-definition: 
+    # The name of the ECS service to deploy to. The action will only register the task definition if no service is given.
+    service: # optional
+    # The name of the ECS service's cluster.  Will default to the 'default' cluster
+    cluster: # optional
+    # Whether to wait for the ECS service to reach stable state after deploying the new task definition. Valid value is "true". Will default to not waiting.
+    wait-for-service-stability: # optional
+    # How long to wait for the ECS service to reach stable state, in minutes (default: 30 minutes, max: 6 hours). For CodeDeploy deployments, any wait time configured in the CodeDeploy deployment group will be added to this value.
+    wait-for-minutes: # optional
+    # The path to the AWS CodeDeploy AppSpec file, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'appspec.yaml'.
+    codedeploy-appspec: # optional
+    # The name of the AWS CodeDeploy application, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'AppECS-{cluster}-{service}'.
+    codedeploy-application: # optional
+    # The name of the AWS CodeDeploy deployment group, if the ECS service uses the CODE_DEPLOY deployment controller. Will default to 'DgpECS-{cluster}-{service}'.
+    codedeploy-deployment-group: # optional
+    # Whether to force a new deployment of the service. Valid value is "true". Will default to not force a new deployment.
+    force-new-deployment: # optional
+    - name: OpenShift Client Installer
+  # You may pin to the exact commit or the version.
+  # uses: redhat-actions/oc-installer@a129dec08aa1cd54ee1e0ac0ebcfbf7b12720582
+  uses: redhat-actions/oc-installer@v1
+  with:
+    # "oc version to install. It can be a version (eg. 4.6) or a URL pointing to an oc download.
+If left blank, the latest oc is installed."
+
+    oc_version: # default is latest
+    - name: Await Taktile Deployment
+  # You may pin to the exact commit or the version.
+  # uses: taktile-org/await-taktile-deployment-action@a4fc46fe2d0d4ef6dc52ed91edfd01f77a919783
+  uses: taktile-org/await-taktile-deployment-action@v0.0.3
+  with:
+    # Your Taktile API key
+    TKTL_API_KEY: 
+    - name: Codefresh pipeline runner
+  # You may pin to the exact commit or the version.
+  # uses: codefresh-io/codefresh-pipeline-runner@c563a2bb98a7b8522192aaabf79ee9504141f8dc
+  uses: codefresh-io/codefresh-pipeline-runner@v7
+  with:
+    # codefresh cli build variables, see https://codefresh-io.github.io/cli/pipelines/run-pipeline/#setting-variables-through-the-command for more information.
+    args: # optional
+    - name: Knative Service Manager
+  # You may pin to the exact commit or the version.
+  # uses: redhat-actions/kn-service-manager@9d456952c2b59c36db2bb2b83adfa983b1c787a4
+  uses: redhat-actions/kn-service-manager@v1
+  with:
+    # The Knative Service Name
+    service_name: 
+    # The Kubernetes Namespace to deploy to. Defaults to current context's namespace.
+    namespace: # optional
+    # The Knative service command, accepted commands are create, update, apply and delete
+    command: # optional, default is create
+    # The Knative Service Image
+    container_image: 
+    # Any extra arguments to append to the kn <command>
+    kn_extra_args: # optional
+    # The registry user to use to create the image pull secret
+    registry_user: # optional
+    # The registry user password
+    registry_password: # optional
+    # "Pass --force to kn create. If the service already exists,
+the service will be replaced, instead of kn create failing.
+This input has no effect if command is not create"
+
+    force_create: # optional, default is false
+    - name: Create Release in Octopus Deploy
+  # You may pin to the exact commit or the version.
+  # uses: OctopusDeploy/create-release-action@012f6d4665776076c9f145b2ff726667a7581203
+  uses: OctopusDeploy/create-release-action@v1.0.2
+  with:
+    # The API key used to access Octopus Deploy. You must provide an API key or username and password. If the guest account is enabled, a key of API-GUEST may be used. It is strongly recommended that this value retrieved from a GitHub secret.
+    api_key: # optional
+    # Cancel the deployment if the deployment_timeout is exceeded (the default timeout is 10 minutes).
+    cancel_on_timeout: # optional, default is false
+    # The name or ID of the channel to use for the new release. If omitted, the best channel will be selected.
+    channel: # optional
+    # The path to a configuration file of default values with one "key=value" per line.
+    config_file: # optional
+    # Enable debug logging.
+    debug: # optional, default is false
+    # Use the default version number of all packages for this release.
+    default_package_version: # optional, default is false
+    # The time at which deployment should start (scheduled deployment), specified as any valid DateTimeOffset format, and assuming the time zone is the current local time zone.
+    deploy_at: # optional
+    # The name or ID of the environment to automatically deploy to (i.e. "Production" or "Environments-1"); specify this argument multiple times to deploy to multiple environments.
+    deploy_to: # optional
+    # The duration between between deployment status checks (format: HH:MM:SS).
+    deployment_check_sleep_cycle: # optional, default is 00:00:10
+    # The duration to wait for the deployment to finish (format: HH:MM:SS). Note: This will not stop the deployment; the input value, wait_for_deployment is required.
+    deployment_timeout: # optional, default is 00:00:10
+    # A comma-separated list of machine names to exclude in the deployed environment. If empty, all machines in the environment will be considered.
+    exclude_machines: # optional
+    # If a project is configured to skip packages with already-installed versions, override this setting to force re-deployment.
+    force: # optional, default is false
+    # Force download of installed packages.
+    force_package_download: # optional, default is false
+    # Use Guided Failure mode.
+    guided_failure: # optional, default is false
+    # Create the release ignoring any version rules specified by the channel.
+    ignore_channel_rules: # optional, default is false
+    # Ignore existing releases if present in Octopus Deploy with the matching version number.
+    ignore_existing: # optional, default is false
+    # Ignore certificate errors when communicating with Octopus Deploy. Warning: enabling this option creates a security vulnerability.
+    ignore_ssl_errors: # optional, default is false
+    # The log level; valid options are "verbose", "debug", "information", "warning", "error", and "fatal".
+    log_level: # optional, default is debug
+    # Time at which scheduled deployment should expire, specified as any valid DateTimeOffset format, and assuming the time zone is the current local time zone.
+    no_deploy_after: # optional
+    # Print the raw log of failed tasks.
+    no_raw_log: # optional, default is false
+    # The version number to use for a package in the release (format: StepName:Version or PackageID:Version or StepName:PackageName:Version).
+    package: # optional
+    # Pre-release for latest version of all packages to use for this release.
+    package_prerelease: # optional
+    # The version number of all packages to use for this release.
+    package_version: # optional
+    # The folder designated for containing packages.
+    packages_folder: # optional
+    # The password to used to authenticate with Octopus Deploy. It is strongly recommended to retrieve this value from a GitHub secret.
+    password: # optional
+    # Show progress of the deployment.
+    progress: # optional, default is false
+    # The name or ID of the project associated with this release.
+    project: # optional
+    # The URL of a proxy to use (i.e. https://proxy.example.com).
+    proxy: # optional
+    # The password used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret. If proxy_username and proxy_password are omitted and proxy URL is specified, the default credentials are used.
+    proxy_password: # optional
+    # The username used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret.
+    proxy_username: # optional
+    # Redirect the raw log of failed tasks to a file.
+    raw_log_file: # optional
+    # The release notes associated with the new release (Markdown is supported).
+    release_notes: # optional
+    # Path to a file that contains release notes for the new release. Supports Markdown files.
+    release_notes_file: # optional
+    # The number for the new release.
+    release_number: # optional
+    # The base URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). It is recommended to retrieve this value from an environment variable.
+    server: # optional
+    # Skip a step by name.
+    skip: # optional
+    # The name or ID of a space within which this command will be executed. If omitted, the default space will be used.
+    space: # optional
+    # A comma-separated list of machine names to target in the deployed environment. If not specified all machines in the environment will be considered.
+    specific_machines: # optional
+    # Create a deployment for the tenant with this name or ID; specify this argument multiple times to add multiple tenants or use a wildcard ("*") to deploy to all tenants who are ready for this release (according to lifecycle).
+    tenant: # optional
+    # Create a deployment for tenants matching this tag; specify this argument multiple times to build a query/filter with multiple tags.
+    tenant_tag: # optional
+    # A timeout value in seconds for network operations.
+    timeout: # optional, default is 600
+    # The username used to authenticate with Octopus Deploy. You must provide an apiKey or username and password. It is strongly recommended to retrieve this value from a GitHub secret.
+    username: # optional
+    # Values for any prompted variables in the format, Label:Value. For JSON values, embedded quotation marks should be escaped with a backslash.
+    variable: # optional
+    # Wait for deployment to finish.
+    wait_for_deployment: # optional, default is false
+    # Perform a dry run; do not create or deploy a release.
+    what_if: # optional, default is false
+    - name: Create Release in Octopus Deploy
+  # You may pin to the exact commit or the version.
+  # uses: OctopusDeploy/create-release-action@012f6d4665776076c9f145b2ff726667a7581203
+  uses: OctopusDeploy/create-release-action@v1.0.2
+  with:
+    # The API key used to access Octopus Deploy. You must provide an API key or username and password. If the guest account is enabled, a key of API-GUEST may be used. It is strongly recommended that this value retrieved from a GitHub secret.
+    api_key: # optional
+    # Cancel the deployment if the deployment_timeout is exceeded (the default timeout is 10 minutes).
+    cancel_on_timeout: # optional, default is false
+    # The name or ID of the channel to use for the new release. If omitted, the best channel will be selected.
+    channel: # optional
+    # The path to a configuration file of default values with one "key=value" per line.
+    config_file: # optional
+    # Enable debug logging.
+    debug: # optional, default is false
+    # Use the default version number of all packages for this release.
+    default_package_version: # optional, default is false
+    # The time at which deployment should start (scheduled deployment), specified as any valid DateTimeOffset format, and assuming the time zone is the current local time zone.
+    deploy_at: # optional
+    # The name or ID of the environment to automatically deploy to (i.e. "Production" or "Environments-1"); specify this argument multiple times to deploy to multiple environments.
+    deploy_to: # optional
+    # The duration between between deployment status checks (format: HH:MM:SS).
+    deployment_check_sleep_cycle: # optional, default is 00:00:10
+    # The duration to wait for the deployment to finish (format: HH:MM:SS). Note: This will not stop the deployment; the input value, wait_for_deployment is required.
+    deployment_timeout: # optional, default is 00:00:10
+    # A comma-separated list of machine names to exclude in the deployed environment. If empty, all machines in the environment will be considered.
+    exclude_machines: # optional
+    # If a project is configured to skip packages with already-installed versions, override this setting to force re-deployment.
+    force: # optional, default is false
+    # Force download of installed packages.
+    force_package_download: # optional, default is false
+    # Use Guided Failure mode.
+    guided_failure: # optional, default is false
+    # Create the release ignoring any version rules specified by the channel.
+    ignore_channel_rules: # optional, default is false
+    # Ignore existing releases if present in Octopus Deploy with the matching version number.
+    ignore_existing: # optional, default is false
+    # Ignore certificate errors when communicating with Octopus Deploy. Warning: enabling this option creates a security vulnerability.
+    ignore_ssl_errors: # optional, default is false
+    # The log level; valid options are "verbose", "debug", "information", "warning", "error", and "fatal".
+    log_level: # optional, default is debug
+    # Time at which scheduled deployment should expire, specified as any valid DateTimeOffset format, and assuming the time zone is the current local time zone.
+    no_deploy_after: # optional
+    # Print the raw log of failed tasks.
+    no_raw_log: # optional, default is false
+    # The version number to use for a package in the release (format: StepName:Version or PackageID:Version or StepName:PackageName:Version).
+    package: # optional
+    # Pre-release for latest version of all packages to use for this release.
+    package_prerelease: # optional
+    # The version number of all packages to use for this release.
+    package_version: # optional
+    # The folder designated for containing packages.
+    packages_folder: # optional
+    # The password to used to authenticate with Octopus Deploy. It is strongly recommended to retrieve this value from a GitHub secret.
+    password: # optional
+    # Show progress of the deployment.
+    progress: # optional, default is false
+    # The name or ID of the project associated with this release.
+    project: # optional
+    # The URL of a proxy to use (i.e. https://proxy.example.com).
+    proxy: # optional
+    # The password used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret. If proxy_username and proxy_password are omitted and proxy URL is specified, the default credentials are used.
+    proxy_password: # optional
+    # The username used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret.
+    proxy_username: # optional
+    # Redirect the raw log of failed tasks to a file.
+    raw_log_file: # optional
+    # The release notes associated with the new release (Markdown is supported).
+    release_notes: # optional
+    # Path to a file that contains release notes for the new release. Supports Markdown files.
+    release_notes_file: # optional
+    # The number for the new release.
+    release_number: # optional
+    # The base URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). It is recommended to retrieve this value from an environment variable.
+    server: # optional
+    # Skip a step by name.
+    skip: # optional
+    # The name or ID of a space within which this command will be executed. If omitted, the default space will be used.
+    space: # optional
+    # A comma-separated list of machine names to target in the deployed environment. If not specified all machines in the environment will be considered.
+    specific_machines: # optional
+    # Create a deployment for the tenant with this name or ID; specify this argument multiple times to add multiple tenants or use a wildcard ("*") to deploy to all tenants who are ready for this release (according to lifecycle).
+    tenant: # optional
+    # Create a deployment for tenants matching this tag; specify this argument multiple times to build a query/filter with multiple tags.
+    tenant_tag: # optional
+    # A timeout value in seconds for network operations.
+    timeout: # optional, default is 600
+    # The username used to authenticate with Octopus Deploy. You must provide an apiKey or username and password. It is strongly recommended to retrieve this value from a GitHub secret.
+    username: # optional
+    # Values for any prompted variables in the format, Label:Value. For JSON values, embedded quotation marks should be escaped with a backslash.
+    variable: # optional
+    # Wait for deployment to finish.
+    wait_for_deployment: # optional, default is false
+    # Perform a dry run; do not create or deploy a release.
+    what_if: # optional, default is false
+    - name: Run Runbook in Octopus Deploy
+  # You may pin to the exact commit or the version.
+  # uses: OctopusDeploy/run-runbook-action@042dd45c396e343ebf30ebdeb61be4266b9de03a
+  uses: OctopusDeploy/run-runbook-action@v1.0.0
+  with:
+    # The API key used to access Octopus Deploy. You must provide an API key or username and password. If the guest account is enabled, a key of API-GUEST may be used. It is strongly recommended that this value retrieved from a GitHub secret.
+    api_key: # optional
+    # Cancel the deployment if the deployment_timeout is exceeded (the default timeout is 10 minutes).
+    cancel_on_timeout: # optional, default is false
+    # The path to a configuration file of default values with one "key=value" per line.
+    config_file: # optional
+    # Enable debug logging.
+    debug: # optional, default is false
+    # A comma-delimited list of environments in Octopus Deploy in which to run (i.e. "Dev,Test,Prod").
+    environments: # optional
+    # A comma-separated list of machine names to exclude in the deployed environment. If empty, all machines in the environment will be considered.
+    exclude_machines: # optional
+    # Force download of installed packages.
+    force_package_download: # optional, default is false
+    # Use Guided Failure mode.
+    guided_failure: # optional, default is false
+    # Ignore certificate errors when communicating with Octopus Deploy. Warning: enabling this option creates a security vulnerability.
+    ignore_ssl_errors: # optional, default is false
+    # The log level; valid options are "verbose", "debug", "information", "warning", "error", and "fatal".
+    log_level: # optional, default is debug
+    # Print the raw log of failed tasks.
+    no_raw_log: # optional, default is false
+    # The time at which scheduled runbook run should expire, specified as any valid DateTimeOffset format, and assuming the time zone is the current local time zone.
+    no_run_after: # optional
+    # The password to used to authenticate with Octopus Deploy. It is strongly recommended to retrieve this value from a GitHub secret.
+    password: # optional
+    # The name or ID of the project associated with this runbook.
+    project: 
+    # The URL of a proxy to use (i.e. https://proxy.example.com).
+    proxy: # optional
+    # The password used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret. If proxy_username and proxy_password are omitted and proxy URL is specified, the default credentials are used.
+    proxy_password: # optional
+    # The username used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret.
+    proxy_username: # optional
+    # Redirect the raw log of failed tasks to a file.
+    raw_log_file: # optional
+    # The time at which runbook run should start (scheduled run), specified as any valid DateTimeOffset format, and assuming the time zone is the current local time zone.
+    run_at: # optional
+    # The name or ID of the runbook. If the name is supplied, the project input value must also be specified.
+    runbook: # optional
+    # The maximum length of time that the console session will wait for the runbook run to finish. Note: This will not stop the run. This input requires the wait_for_run input value to be true (format: HH:MM:SS). The default is 10 minutes.
+    run_timeout: # optional, default is 00:10:00
+    # The base URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). It is recommended to retrieve this value from an environment variable.
+    server: # optional
+    # Show progress of the runbook.
+    show_progress: # optional, default is false
+    # Skip a step by name.
+    skip: # optional
+    # The name or ID of a space within which this command will be executed. If omitted, the default space will be used.
+    space: # optional
+    # A comma-separated list of machine names to target in the deployed environment. If not specified all machines in the environment will be considered.
+    specific_machines: # optional
+    # Create a deployment for the tenant with this name or ID; specify this argument multiple times to add multiple tenants or use a wildcard ("*") to deploy to all tenants who are ready for this release (according to lifecycle).
+    tenant: # optional
+    # Create a deployment for tenants matching this tag; specify this argument multiple times to build a query/filter with multiple tags.
+    tenant_tag: # optional
+    # A timeout value in seconds for network operations.
+    timeout: # optional, default is 600
+    # The username used to authenticate with Octopus Deploy. You must provide an apiKey or username and password. It is strongly recommended to retrieve this value from a GitHub secret.
+    username: # optional
+    # Values for any prompted variables in the format, Label:Value. For JSON values, embedded quotation marks should be escaped with a backslash.
+    variable: # optional
+    # Indicates whether or not to wait synchronously for deployment to finish.
+    wait_for_run: # optional, default is false
+    - name: Push To Registry
+  # You may pin to the exact commit or the version.
+  # uses: redhat-actions/push-to-registry@97623df94312db8bb23fd8c42b747583175b999d
+  uses: redhat-actions/push-to-registry@v2
+  with:
+    # Name of the image to push (e.g. username/imagename or imagename)
+    image: 
+    # The tag or tags of the image to push. For multiple tags, seperate by a space. For example, "latest v1"
+    tags: # optional, default is latest
+    # Hostname and optional namespace to push the image to (eg. quay.io/username or quay.io)
+    registry: 
+    # Username to use as credential to authenticate to the registry
+    username: # optional
+    # Password to use as credential to authenticate to the registry
+    password: # optional
+    # Verify TLS certificates when contacting the registry
+    tls-verify: # optional, default is true
+    # After copying the image, write the digest of the resulting image to the file.
+By default, the filename will be determined from the image and tag.
+The contents of this file are the digest output.
+
+    digestfile: # optional
+    # Extra args to be passed to podman push.
+Separate arguments by newline. Do not use quotes - @actions/exec will do the quoting for you.
+
+    extra-args: # optional
+    - name: Install Octopus CLI
+  # You may pin to the exact commit or the version.
+  # uses: OctopusDeploy/install-octopus-cli-action@aee5b620e9107e6ef3ae0cbd25dfde10e0910168
+  uses: OctopusDeploy/install-octopus-cli-action@v1.1.6
+  with:
+    # Octopus CLI version
+    version: # optional, default is latest
+    - name: Push Package to Octopus Deploy
+  # You may pin to the exact commit or the version.
+  # uses: OctopusDeploy/push-package-action@db2b64b77368373659086c2b2631b02019fdcca0
+  uses: OctopusDeploy/push-package-action@v1.0.1
+  with:
+    # The API key used to access Octopus Deploy. You must provide an API key or username and password. If the guest account is enabled, a key of API-GUEST may be used. It is strongly recommended that this value retrieved from a GitHub secret.
+    api_key: # optional
+    # The path to a configuration file of default values with one "key=value" per line.
+    config_file: # optional
+    # Enable debug logging.
+    debug: # optional, default is false
+    # Ignore certificate errors when communicating with Octopus Deploy. Warning: enabling this option creates a security vulnerability.
+    ignore_ssl_errors: # optional, default is false
+    # The log level; valid options are "verbose", "debug", "information", "warning", "error", and "fatal".
+    log_level: # optional, default is debug
+    # Determines the action to perform with package if it already exists in the repository. Valid values are "FailIfExists", "OverwriteExisting", and "IgnoreIfExists".
+    overwrite_mode: # optional, default is FailIfExists
+    # A comma-delimited list of packages to push to Octopus Deploy (i.e. package1,package2).
+    packages: # optional
+    # The password to used to authenticate with Octopus Deploy. It is strongly recommended to retrieve this value from a GitHub secret.
+    password: # optional
+    # The URL of a proxy to use (i.e. https://proxy.example.com).
+    proxy: # optional
+    # The password used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret. If proxy_username and proxy_password are omitted and proxy URL is specified, the default credentials are used.
+    proxy_password: # optional
+    # The username used to connect to a proxy. It is strongly recommended to retrieve this value from a GitHub secret.
+    proxy_username: # optional
+    # If the package already exists in the repository, the default behavior is to reject the new package being pushed. You can pass this flag to overwrite the existing package. This flag may be deprecated in a future version; passing it is the same as using "OverwriteExisting" for the input, overwrite_mode.
+    release_existing: # optional
+    # The base URL hosting Octopus Deploy (i.e. "https://octopus.example.com/"). It is recommended to retrieve this value from an environment variable.
+    server: # optional
+    # The name or ID of a space within which this command will be executed. If omitted, the default space will be used.
+    space: # optional
+    # A timeout value in seconds for network operations.
+    timeout: # optional, default is 600
+    # Use delta compression when uploading packages to Octopus Deploy.
+    use_delta_compression: # optional, default is true,
+    # The username used to authenticate with Octopus Deploy. You must provide an apiKey or username and password. It is strongly recommended to retrieve this value from a GitHub secret.
+    username: # optional
+    - name: OpenShift Login
+  # You may pin to the exact commit or the version.
+  # uses: redhat-actions/oc-login@11b98b2a0c4b972c9791d58edbf378ce0f060359
+  uses: redhat-actions/oc-login@v1.1
+  with:
+    # Openshift Server URL.
+    openshift_server_url: 
+    # Openshift Bearer Token. Store in a secret.
+    openshift_token: # optional
+    # Openshift Username. Must be used with openshift_password.
+    openshift_username: # optional
+    # Openshift Password. Store in a secret. Must be used with openshift_username.
+    openshift_password: # optional
+    # Skip TLS certificate verification when connecting to the cluster.
+    insecure_skip_tls_verify: # optional, default is false
+    # Contents of a Certificate Authority (.crt) file for your cluster's SSL certificate. Store in a secret.
+    certificate_authority_data: # optional
+    # Set current context's namespace to this, after logging in.
+    namespace: # optional
+    # "By default, the cluster name is masked, since it can be used to derive the server URL.
+Set this to true to skip masking the cluster name."
+
+    reveal_cluster_name: # optional, default is false
+    - name: OpenShift Self Hosted Runner Installer
+  # You may pin to the exact commit or the version.
+  # uses: redhat-actions/openshift-actions-runner-installer@1ae07bff8c27b2b06fbd55ef36eada3a078ac3e9
+  uses: redhat-actions/openshift-actions-runner-installer@v1.0.0
+  with:
+    # GitHub Personal access token. The token must have the "repo" permission scope.
+For organization runners, the token must also have the "admin:org" scope.
+
+    github_pat: 
+    # Repository or organization for the self-hosted runner.
+For example, "redhat-actions/check-self-hosted-runner" for a repository, or "redhat-actions" for an organization.
+Defaults to the current repository.
+
+    runner_location: # optional
+    # Container image to use for the runner.
+    runner_image: # optional
+    # Tag to use for the runner container image.
+    runner_tag: # optional
+    # Labels in the runners to check for.
+For multiple labels, separate by comma and an optional space. For example, "label1, label2".
+
+    runner_labels: # optional
+    # Number of runner replicas to create.
+    runner_replicas: # optional, default is 1
+    # Optional namespace (aka project) to pass to all Helm or Kubernetes commands.
+
+    namespace: # optional
+    # Uninstall any release that matches the `helm_release_name` and `namespace` before running `helm install`.
+If this is false, and the release exists, the action will fail when the `helm install` fails.
+
+    helm_uninstall_existing: # optional, default is true
+    # The Helm Release name to give the new runner release. Defaults to the repository or org name plus "-runners".
+    helm_release_name: # optional
+    # Any other arguments to pass to the 'helm install' command.
+Separate arguments by newline. Do not use quotes - @actions/exec will do the quoting for you.
+
+    helm_extra_args: # optional
+    # Version of our Helm Chart to install. Defaults to the latest.
+    helm_chart_version: # optional
+    - name: Steam - Deploy
+  # You may pin to the exact commit or the version.
+  # uses: game-ci/steam-deploy@c18eb6aa08a18e5c4a6c7a1affe355f4031f809e
+  uses: game-ci/steam-deploy@v0.1
+  with:
+    # The app id within steam partner network.
+    appId: # default is 
+    # Description for this build.
+    buildDescription: # optional
+    # The username of your builder account.
+    username: # default is 
+    # The password of your builder account.
+    password: # default is 
+    # The multi-factor authentication code from steam guard, that is emailed when attempting to sign in.
+    mfaCode: # optional, default is 
+    - name: ServiceNow CI/CD Apply Changes
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-apply-changes@d9e560381b65fc450f8dc85b084c1a6cc40e503c
+  uses: ServiceNow/sncicd-apply-changes@2.0.0
+  - name: ServiceNow CI/CD Install App
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-install-app@c2cd948de450aff560f8d2572255f758385996c7
+  uses: ServiceNow/sncicd-install-app@2.0.0
+  with:
+    # Application version to install
+    version: 
+    # Version of the base application on which to apply the customizations
+    baseAppVersion: # optional
+    # Only applicable if Application Customization is active and the associated application is a higher version than the currently installed version
+    autoUpgradeBaseApp: # optional
+    - name: ServiceNow CI/CD Rollback App
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-rollback-app@4e322960b74926a35d60c5e321962a75c5a93249
+  uses: ServiceNow/sncicd-rollback-app@2.0.0
+  with:
+    # Application version to rollback
+    version: 
+    - name: ServiceNow CI/CD Run ATF Test Suite
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-tests-run@49e9a72f68d0d1a2501d24a2cb14ed31b32a9ea8
+  uses: ServiceNow/sncicd-tests-run@2.0.0
+  with:
+    # Name of the browser to use to run the client test. 
+    browserName: # optional
+    # Starting value of the version of the browser specified in browser_name to use to run the test. For example, if you enter '9', that would enable all 9.x.x.x versions
+    browserVersion: # optional
+    # Name of the operating system under which to run the test suite.
+    osName: # optional
+    # Starting value of the version of the operating system under which to run the test suite. For example, if you enter '8', that would enable all 8.x.x.x versions.
+    osVersion: # optional
+    # Required if testSuiteName is not specified
+    testSuiteSysId: # optional
+    # Required if testSuiteSysId is not specified
+    testSuiteName: # optional
+    - name: ServiceNow CI/CD Activate Plugin
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-plugin-activate@a12a95b41b8e026f9107d0c38f22245a5f4cf8d7
+  uses: ServiceNow/sncicd-plugin-activate@2.0.0
+  with:
+    # Plugin ID to be installed
+    pluginID: 
+    - name: ServiceNow CI/CD Instance Scan
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-instance-scan@3acee37296d42bfafcb50cb04253409a83b42c44
+  uses: ServiceNow/sncicd-instance-scan@2.0.0
+  with:
+    # Type of scan process. Can be equal to full, point, suite_combo, suite_scoped, suite_update.
+    scantype: 
+    # URL param if point scan type is specified.
+    targetTable: # optional
+    # URL param if point scan type is specified.
+    targetSysId: # optional
+    # URL param if suite_combo scan type is specified.
+    comboSysId: # optional
+    # URL param if suite_scoped or suite_update scan type is specified.
+    suiteSysId: # optional
+    # Payload params, comma separated(if suite_scoped or suite_update scan type is specified).
+    appScopeSysIds: # optional
+    # Payload params, comma separated(if suite_scoped or suite_update scan type is specified).
+    updateSetSysIds: # optional
+    - name: ServiceNow CI/CD Rollback Plugin
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-plugin-rollback@600e3f11252fa6690ea329d129854eed2ed3f291
+  uses: ServiceNow/sncicd-plugin-rollback@2.0.0
+  with:
+    # Plugin ID to be rolled back
+    pluginID: 
+    - name: Setup Pulumi CLI
+  # You may pin to the exact commit or the version.
+  # uses: pulumi/setup-pulumi@b374ceb6168550de27c6eba92e01c1a774040e11
+  uses: pulumi/setup-pulumi@v2.0.0
+  with:
+    # Version of the Pulumi CLI to install, or 'latest' (default). This accepts semver ranges like ^3.0.0.
+    pulumi-version: # default is latest
+    # Token used to query pulumi versions
+    github-token: # default is ${{ github.token }}
+    - name: oc-new-app
+  # You may pin to the exact commit or the version.
+  # uses: redhat-actions/oc-new-app@d74a8e684e47a4e10b851043685e95380d62a265
+  uses: redhat-actions/oc-new-app@v1
+  with:
+    # Name to use for generated application artifacts
+    app_name: 
+    # "Environment variable key-value pairs to pass to the build container at the run time.
+Use the form env_name=env_value, and separate arguments with newlines."
+
+    build_env: # optional
+    # "Registry credentials file to use to create a pull secret.
+Set this to "docker" or "podman" depending on which tool you used to log in"
+
+    create_pull_secret_from: # optional
+    # "The name (reference) of the image to create deployment.
+It can be a container image or an image stream"
+
+    image: 
+    # "In the case of private images, provide the image pull secret if you have already created that.
+Otherwise, provide inputs create_pull_secret_from or registry_hostname, registry_username and registry_password"
+
+    image_pull_secret_name: # optional
+    # The OpenShift project/Kubernetes namespace to deploy to. Defaults to current context's.
+    namespace: # optional
+    # "A port to expose from the application container through a Service.
+If exactly one port is exposed in the container metadata, then this input can be omitted."
+
+    port: # optional
+    # The Hostname/domain of the container image registry such as quay.io, docker.io. to create pull secret
+    registry_hostname: # optional
+    # Registry username to use for the pull secret
+    registry_username: # optional
+    # Password, encrypted password, or access token of the provided registry to use for the pull secret
+    registry_password: # optional
+    - name: ServiceNow CI/CD Batch Install
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-batch-install@cd0fe0c6cf7d8bf5baab47c8de34f98540b67a9d
+  uses: ServiceNow/sncicd-batch-install@2.0.1
+  with:
+    # Source of the payload(file/workflow)
+    source: 
+    # Filename(or a path without trailing slash) of the manifest JSON file is source equals to file(Default: now_batch_manifest.json)
+    filename: # optional
+    # JSON string with payload if source equals to workflow
+    manifest: # optional
+    - name: ServiceNow CI/CD Publish App
+  # You may pin to the exact commit or the version.
+  # uses: ServiceNow/sncicd-publish-app@47637072820da005ce51de1e18bfbc0fd70427d8
+  uses: ServiceNow/sncicd-publish-app@2.0.1
+  with:
+    # Application version to publish
+    version: # optional
+    # Developer notes to store with the application.
+    devNotes: # optional
+    # Version template ( like 2.4 ).
+    versionTemplate: # optional
+    # exact, detect, autodetect, template
+    versionFormat: # optional
+    # Increment version level, should be positive or zero, Default: 1.
+    incrementBy: # optional
+    # If true, require appSysID instead of appScope
+    isAppCustomization: # optional
+    - name: Setup AWS SAM CLI
+  # You may pin to the exact commit or the version.
+  # uses: aws-actions/setup-sam@78b82164f8a2449644bee00cddb8b2ef492adaf0
+  uses: aws-actions/setup-sam@v1
+  with:
+    # The AWS SAM CLI version to install
+    version: # optional
+    # The Python interpreter to use for AWS SAM CLI
+    python: # optional
+    - name: Dapr tool installer
+  # You may pin to the exact commit or the version.
+  # uses: dapr/setup-dapr@ffde132592c51fcb876dff3925598fd150137569
+  uses: dapr/setup-dapr@v1
+  with:
+    # Version of Dapr CLI to install
+    version: # optional, default is 1.2.0
+    - name: Pulumi CLI Action
+  # You may pin to the exact commit or the version.
+  # uses: pulumi/actions@85bc5a53b92ccf41e4259e60cb64beed049af00b
+  uses: pulumi/actions@v3.3.0
+  with:
+    # Pulumi command to run, eg. up
+    command: 
+    # Which stack you want to apply to, eg. dev
+    stack-name: 
+    # Location of your Pulumi files. Defaults to ./
+    work-dir: # optional, default is ./
+    # If true, a comment will be created with results
+    comment-on-pr: # optional, default is false
+    # Github Token
+    github-token: # optional, default is ${{ github.token }}
+    # A cloud URL to log in to
+    cloud-url: # optional, default is 
+    # Allow P resource operations to run in parallel at once (1 for no parallelism). Defaults to unbounded.
+    parallel: # optional, default is 2147483647
+    # Optional message to associate with the update operation
+    message: # optional, default is 
+    # Return an error if any changes occur during this update
+    expect-no-changes: # optional
+    # Display operation as a rich diff showing the overall change
+    diff: # optional
+    # Specify resources to replace. Multiple resources can be specified one per line
+    replace: # optional
+    # Specify a single resource URN to update. Other resources will not be updated. Multiple resources can be specified one per line
+    target: # optional
+    # Allows updating of dependent targets discovered but not specified in target.
+    target-dependents: # optional, default is false
+    # Perform a stack refresh as part of the operation
+    refresh: # optional, default is false
+    # Create the stack if it currently does not exist
+    upsert: # optional, default is false
+    # Edit previous PR comment instead of posting new one
+    edit-pr-comment: # optional, default is true
+    - name: Kubernetes bake
+  uses: Azure/k8s-bake@v1
+  with:
+    # Acceptable values: helm or kompose or kustomize
+    renderEngine: 
+    # Required if renderEngine == helm. Helm chart to bake.
+    helmChart: # optional
+    # Relevant if renderEngine == helm. Array of path to override files. Each path should be mentioned on a newline
+    overrideFiles: # optional
+    # Relevant if renderEngine == helm. Override values to set.
+    overrides: # optional
+    # Relevant if renderEngine == helm. Release name to be used for Helm option.
+    releaseName: # optional
+    # Required if renderEngine == kustomization. Path to directory or the Git repository containing kustomization.yaml file.
+    kustomizationPath: # optional
+    # Required if renderEngine == kompose. Path(s) to Docker compose files
+    dockerComposeFile: # optional
+    # Version of kubectl. Installs a specific version of helm binary
+    helm-version: # optional
+    # Version of kubectl. Installs a specific version of kubectl binary
+    kubectl-version: # optional
+    # Version of kubectl. Installs a specific version of kompose binary
+    kompose-version: # optional
+    # When set to true, the output of the bake command would not be shown.
+    silent: # optional
+    - name: Azure Pipelines Action
+  uses: Azure/pipelines@v1
+  with:
+    # Fullyqualified URL to the Azure DevOps organization along with project name(eg, https://dev.azure.com/organization/project-name or https://server.example.com:8080/tfs/DefaultCollection/project-name)
+    azure-devops-project-url: 
+    # Name of the Azure Pipline to be triggered
+    azure-pipeline-name: 
+    # Paste personal access token of the user as value of secret variable:AZURE_DEVOPS_TOKEN
+    azure-devops-token: 
+    - name: Create secret in Kubernetes cluster
+  uses: Azure/k8s-create-secret@v1.1
+  with:
+    # Choose the target Kubernetes namespace. If the namespace is not provided, the commands will run in the default namespace.
+    namespace: # optional
+    # Container registry url
+    container-registry-url: # optional
+    # Container registry username
+    container-registry-username: # optional
+    # Container registry password
+    container-registry-password: # optional
+    # Container registry email
+    container-registry-email: # optional
+    # Type of Kubernetes secret. For example, docker-registry or generic
+    secret-type: # default is docker-registry
+    # Name of the secret. You can use this secret name in the Kubernetes YAML configuration file.
+    secret-name: 
+    # Specify keys and literal values to insert in generic type secret.For example, --from-literal=key1=value1 --from-literal=key2="top secret".
+    arguments: # optional
+    - name: App Service Web App Build Action
+  uses: Azure/appservice-build@v2
+  with:
+    # Relative path (within the repository) to the source directory of the project you want to build; if no value is provided for this, the root of the repository ("GITHUB_WORKSPACE" environment variable) will be built.
+    source-directory: # optional
+    # Programming platform used to build the web app; if no value is provided, Oryx will determine the platform to build with. The supported values are "dotnet", "nodejs", "php" and "python".
+    platform: # optional
+    # Version of the programming platform used to build the web app; if no value is provided, Oryx will determine the version needed to build the repository.
+    platform-version: # optional
+    # The directory where the build output has to be put.
+    output-directory: # optional
+    - name: Azure Policy Compliance Scan
+  uses: Azure/policy-compliance-scan@v0
+  with:
+    # Mandatory. Takes full identifier for one or more azure resources, resource groups or subscriptions. The on-demand policy compliance scan is triggered for all of these. The ID can generally be found in the properties section of the resource in Azure Portal.
+    scopes: 
+    # Optional. Takes full identifier for one or more azure resources, resource groups(followed by /*). If the resources are found non-compliant after the scan completion, the action fails. However, in this input you can specify resources or resource groups for which the compliance state will be ignored. The action will pass irrespective of the compliance state of these resources. In case you want the action to always pass irrespective of the compliance state of resources, you can set its value as all.
+    scopes-ignore: # optional
+    # Optional. Depending on the breadth, the time taken for compliance scan can range from a few minutes to several hours. By default, the action will wait for the compliance scan to complete and succeed or fail based on the compliance state of resources. However, you can mark this input as false, in which case the action will trigger the compliance scan and succeed immediately. The status of the triggered scan and the compliance state of resources would have to be then viewed in activity log of the resource in Azure portal.
+    wait: # optional, default is true
+    # Optional. Defaults to false. If false, the action will upload a CSV file containing a list of resources that are non-compliant after the triggered scan is complete. The CSV file can be downloaded as an artifact from the workflow run for manual analysis. Note that the number of rows in CSV are capped at 100,000.
+    skip-report: # optional
+    # Optional. The filename for the CSV to be uploaded. Ignored if skip-report is set to true.
+    report-name: # optional
+    - name: Manage Azure Policy
+  uses: Azure/manage-azure-policy@v0
+  with:
+    # mandatory. The path(s) to the directory that contains Azure policy files. The files present only in these directories  will be considered by this action for updating policies in Azure. You can use wild card characters as mentioned * or ** for specifying sub folders in a path. For more details on the use of the wild cards check [glob wildcard patterns](https://github.com/isaacs/node-glob#glob-primer). Note that a definition file should be named as policy.json and assignment filenames should start with assign keyword.
+    paths: 
+    # Optional. These are the directory paths that will be ignored by the action. If you have a specific policy folder that is not ready to be applied yet, specify the path here. Note that ignore-paths has a higher precedence compared to paths parameter.
+    ignore-paths: # optional
+    # Optional. These are policy assignment files that would be considered by the action. This parameter is especially useful if you want to apply only those assignments that correspond to a specific environment for following a safe deployment practice. E.g. _assign.AllowedVMSKUs-dev-rg.json_. You can use wild card character * to match multiple file names. E.g. _assign.\*dev\*.json_. If this parameter is not specified, the action will consider all assignment files that are present in the directories mentioned in paths parameter.
+    assignments: # optional
+    # Optional. There are 2 modes for this action - _incremental_ and _complete_. If not specified, the action will use incremental mode by default. In incremental mode, the action will compare already exisiting policy in azure with the contents of policy provided in repository file. It will apply the policy only if there is a mismatch. On the contrary, the complete mode will apply all the files present in the specified paths irrespective of whether or not repository policy file has been updated.
+    mode: # optional
+    - name: Build Azure Virtual Machine Image
+  uses: Azure/build-vm-image@v0
+  with:
+    # This is the Azure region in which the Image Builder will run.
+    location: # optional
+    # This is the Resource Group where the temporary Imagebuilder Template resource will be created.
+    resource-group-name: 
+    # The name of the image builder template resource to be used for creating and running the Image builder service.
+    image-builder-template-name: # optional
+    # The value is an integer which is used as timeout in minutes for running the image build.
+    build-timeout-in-minutes: # optional, default is 240
+    # You can override the VM size, from the default value i.e. Standard_D1_v2.
+    vm-size: # optional, default is Standard_D1_v2
+    # The identity that will be used to do the role assignment and resource creation
+    managed-identity: # optional
+    # [ PlatformImage | SharedImageGallery | ManagedImage ]
+    source-image-type: # optional, default is PlatformImage
+    # OS types supported: [ linux | windows ].
+    source-os-type: 
+    # Value of source-image supported by Azure Image Builder.
+    source-image: # optional
+    # This takes the path to a directory or a file in the runner. By default, it points to the default download directory of the github runner.
+    customizer-source: # optional
+    # The customer can enter multi inline powershell or shell commands and use variables to point to directories inside the downloaded location.
+    customizer-script: # optional
+    # The value is boolean and set to false by default. This value is for Windows images only, the image builder will run Windows Update at the end of the customizations and also handle the reboots it requires.
+    customizer-windows-update: # optional
+    # ManagedImage | SharedImageGallery | VHD
+    dist-type: # optional, default is ManagedImage
+    # Image Resource Id to be created by AIB
+    dist-resource-id: # optional
+    # location of Image created by AIB
+    dist-location: # optional
+    # Every Image builder run is identified with a unique run id.
+    run-output-name: # optional
+    # The values set will be used to set the user defined tags on the custom image artifact created.
+    dist-image-tags: # optional
+    - name: Azure PostgreSQL Action
+  uses: Azure/postgresql@v1
+  with:
+    # Server name of Azure DB for PostgreSQL. Example: fabrikam.postgres.database.azure.com
+    server-name: 
+    # The connection string, including authentication information, for the Azure PostgreSQL Server. Please provide psql connection string. Example: psql "host={host} port={port} dbname={your_database} user={user} password={your_password} sslmode=require"
+    connection-string: 
+    # Path to PL/SQL script file to deploy. To specify multiple files, use the regex syntax : *.sql or folder/x/<regex>.sql
+    plsql-file: 
+    # Additional options supported by postgresql simple SQL shell. These options will be applied when executing the given file on the Azure DB for Postgresql. In case of multiple files, the same args will be applied for all files
+    arguments: # optional
+    - name: Azure MYSQL Deploy
+  uses: Azure/mysql@v1
+  with:
+    # Server name of Azure DB for Mysql. Example: fabrikam.mysql.database.azure.com. When you connect using Mysql Workbench, this is the same value that is used for Hostname in Parameters
+    server-name: 
+    # The connection string, including authentication information, for the Azure MySQL Server. (deprecated)
+    connection-string: # optional
+    # Azure MySQL Server username for login
+    username: # optional
+    # Azure MySQL Server password for login
+    password: # optional
+    # Azure MySQL Server database (optional) to connect to. No database will be used automatically.
+    database: # optional
+    # Path to SQL script file to deploy
+    sql-file: 
+    # Additional options supported by mysql simple SQL shell. These options will be applied when executing the given file on the Azure DB for Mysql.
+    arguments: # optional
+    - name: Azure PowerShell Action
+  uses: Azure/powershell@v1
+  with:
+    # Specify the Az PowerShell script here.
+    inlineScript: 
+    # Azure PS version to be used to execute the script, example: 1.8.0, 2.8.0, 3.4.0. To use the latest version, specify "latest".
+    azPSVersion: 
+    # Select the value of the ErrorActionPreference variable for executing the script. Options: stop, continue, silentlyContinue. Default is Stop.
+    errorActionPreference: # optional, default is Stop
+    # If this is true, this task will fail if any errors are written to the error pipeline, or if any data is written to the Standard Error stream.
+    failOnStandardError: # optional, default is false
+    # Used to pull Az module from Azure/az-ps-module-versions.  Since there's a default, this is typically not supplied by the user.
+    githubToken: # optional, default is ${{ github.token }}
+    - name: Azure Login
+  uses: Azure/login@v1
+  with:
+    # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
+    creds: 
+    # Set this value to true to enable Azure PowerShell Login in addition to Az CLI login
+    enable-AzPSSession: # optional
+    # Name of the environment. Supported values are azurecloud, azurestack, azureusgovernment, azurechinacloud, azuregermancloud. Default being azurecloud
+    environment: # optional, default is azurecloud
+    # Set this value to true to enable support for accessing tenants without subscriptions
+    allow-no-subscriptions: # optional
+    - name: Azure CLI Action
+  uses: Azure/cli@1.0.4
+  with:
+    # Specify the script here
+    inlineScript: 
+    # Azure CLI version to be used to execute the script. If not provided, latest version is used
+    azcliversion: # optional, default is latest
+    - name: Azure App Service Settings
+  uses: Azure/appservice-settings@v1
+  with:
+    # Name of the Azure Web App
+    app-name: 
+    # Name of an existing slot other than the production slot. Default value is production
+    slot-name: # optional
+    # Application settings using the JSON syntax set as value of secret variable: APP_SETTINGS
+    app-settings-json: # optional
+    # Connection Strings using the JSON syntax set as value of secret variable: CONNECTION_STRINGS
+    connection-strings-json: # optional
+    # General configuration settings using dictionary syntax - Key Value pairs
+    general-settings-json: # optional
+    # Set it to false if you want to provide input jsons as plain text/you do not want input json values to be masked. This will apply to all input jsons. Default is true
+    mask-inputs: # optional, default is true
+    - name: Deploy to Kubernetes cluster
+  uses: Azure/k8s-deploy@v1
+  with:
+    # Choose the target Kubernetes namespace. If the namespace is not provided, the commands will run in the default namespace.
+    namespace: # optional
+    # Path to the manifest files which will be used for deployment.
+    manifests: # default is 
+    # Fully qualified resource URL of the image(s) to be used for substitutions on the manifest files Example: contosodemo.azurecr.io/helloworld:test
+    images: # optional
+    # Name of a docker-registry secret that has already been set up within the cluster. Each of these secret names are added under imagePullSecrets field for the workloads found in the input manifest files
+    imagepullsecrets: # optional
+    # Version of kubectl. Installs a specific version of kubectl binary
+    kubectl-version: # optional
+    # Deployment strategy to be used. Allowed values are none, canary
+    strategy: # optional, default is none
+    # Traffic split method to be used. Allowed values are pod, smi
+    traffic-split-method: # optional, default is pod
+    # Baseline and canary replicas count; valid value i.e between 0 to 100.
+    baseline-and-canary-replicas: # optional, default is 0
+    # Percentage of traffic redirect to canary deployment
+    percentage: # optional, default is 0
+    # Arguments
+    args: # optional
+    # deploy/promote/reject
+    action: # default is deploy
+    # Deploy when a previous deployment already exists. If true then --force argument is added to the apply command.
+    force: # optional
+    - name: Azure Functions Container Action
+  uses: Azure/functions-container-action@v1.1.0
+  with:
+    # Name of the Azure Function App
+    app-name: 
+    # Specify the fully qualified container image(s) name. For example, 'myregistry.azurecr.io/nginx:latest' or 'python:3.7.2-alpine/'.
+    image: 
+    # Enter the start up command. For ex. 'dotnet run' or '/azure-functions-host/Microsoft.Azure.WebJobs.Script.WebHost'
+    container-command: # optional
+    # Function app slot to be deploy to
+    slot-name: # optional
+    - name: Azure Functions Action
+  uses: Azure/functions-action@v1.4.0
+  with:
+    # Name of the Azure Function App
+    app-name: 
+    # Path to package or folder. *.zip or a folder to deploy
+    package: # optional, default is .
+    # Function app slot to be deploy to
+    slot-name: # optional
+    # Publish profile (*.publishsettings) file contents with web deploy secrets
+    publish-profile: # optional
+    # Automatically look up Java function app artifact from pom.xml (default: 'false'). When this is set to 'true', 'package' should point to the folder of host.json.
+    respect-pom-xml: # optional, default is false
+    # Remove unwanted files defined in .funcignore file (default: 'false'). When this is set to 'true', 'package' should point to the folder of host.json.
+    respect-funcignore: # optional, default is false
+    # Enable build action from Kudu when the package is deployed onto the function app. This will temporarily change the SCM_DO_BUILD_DURING_DEPLOYMENT setting for this deployment. To bypass this and use the existing settings from your function app, please set this to an empty string ''. To enable remote build for your project, please set this and 'enable-oryx-build' both to 'true'. By default, GitHub Action respects the packages resolved in GitHub workflow, disabling the redundant build action from Kudu endpoint. (default: 'false').
+    scm-do-build-during-deployment: # optional, default is false
+    # Use Oryx Build from Kudu when the package is deployed onto the function app. (Linux functions only). This will temporarily change the ENABLE_ORYX_BUILD setting from this deployment. To bypass this and use the existing settings from your function app, please set this to an empty string ''. To enable remote build for your project, please set this and 'scm-do-build-during-deployment' both to 'true'. By default, GitHub Action respects the packages resolved in GitHub workflow, disabling the redundant build action from Kudu endpoint. (default: 'false').
+    enable-oryx-build: # optional, default is false
+    - name: Kubernetes set context
+  uses: Azure/k8s-set-context@v1.1
+  with:
+    # Acceptable values: generic or arc
+    cluster-type: # default is generic
+    # Acceptable values: kubeconfig or service-account or service-principal
+    method: # default is kubeconfig
+    # Kubernetes Config
+    kubeconfig: # optional, default is 
+    # If your kubeconfig has multiple contexts, use this field to use a specific context, otherwise the default one would be chosen
+    context: # optional, default is 
+    # Cluster Url
+    k8s-url: # optional, default is 
+    # Service account secret. Run kubectl get serviceaccounts <service-account-name> -o yaml and copy the service-account-secret-name. Copy the ouptut of kubectl get secret <service-account-secret-name> -o yaml
+    k8s-secret: # optional, default is 
+    # Token extracted from the secret of service account (should be base 64 decoded)
+    token: # optional, default is 
+    # Azure resource group name
+    resource-group: # optional, default is 
+    # Azure connected cluster name
+    cluster-name: # optional, default is 
+    - name: Synapse workspace deployment
+  uses: Azure/Synapse-workspace-deployment@v0.2
+  with:
+    # Provide the Synapse workspace name where you want to deploy the artifacts.
+    TargetWorkspaceName: 
+    # Specify the path to the workspace artifacts template.
+    TemplateFile: 
+    # Specify the path to the template parameter file.
+    ParametersFile: 
+    # Specify deployment parameter values.
+    OverrideArmParameters: # optional, default is 
+    # Provide the type of cloud environment. Valid values are: Azure Public, Azure China, Azure US Government, Azure Germany
+    Environment: 
+    # Provide the resource group of the target Synapse workspace.
+    resourceGroup: 
+    # Provide client id of service principal.
+    clientId: 
+    # Provide client secret of the service principal.
+    clientSecret: 
+    # Provide subscription id.
+    subscriptionId: 
+    # Provide tenant id.
+    tenantId: 
+    # Provide Active Directory Endpoint.
+    activeDirectoryEndpointUrl: 
+    # Provide Resource Manager Endpoint.
+    resourceManagerEndpointUrl: 
+    - name: Deploy to Azure Container Instances
+  uses: Azure/aci-deploy@v1
+  with:
+    # Name of the Resource Group in which the Container Instance will be created
+    resource-group: 
+    # The storage account access key used to access the Azure File Share
+    azure-file-volume-account-key: # optional, default is 
+    # The name of the storage account that contains the Azure File Share
+    azure-file-volume-account-name: # optional, default is 
+    # The path within the container where the Azure File Volume should be mounted. Must not contain ":"
+    azure-file-volume-mount-path: # optional, default is 
+    # The name of the Azure File Share to be mounted as a volume
+    azure-file-volume-share-name: # optional, default is 
+    # Should the Azure File Share be Mounted as Read Only. Accepted { true, false }
+    azure-file-volume-read-only: # optional, default is 
+    # The command line to run when the container is started, e.g. "/bin/bash -c myscript.sh"
+    command-line: # optional, default is 
+    # Number of CPU Cores Required
+    cpu: # optional, default is 1
+    # The DNS Name Label for Container with Public IP
+    dns-name-label: 
+    # List of environment variables for the container. Space-seperated in "key=value" format
+    environment-variables: # optional, default is 
+    # The target directory path in the git repository. Must not contain ".."
+    gitrepo-dir: # optional, default is 
+    # The path within the container where the git repo volume should be mounted. Must not contain ":"
+    gitrepo-mount-path: # optional, default is 
+    # The commit hash for the specified revision
+    gitrepo-revision: # optional, default is 
+    # The URL of a git repository to be mounted as a volume
+    gitrepo-url: # optional, default is 
+    # The Number of GPU Resources needed in the Container
+    gpu-count: # optional, default is 
+    # The SKU for the GPUs specified. Accepted Values are { K80, P100, V100 }
+    gpu-sku: # optional, default is 
+    # Specify the fully qualified container image name. For example, "myregistry.azurecr.io/nginx:latest" or "python:3.7.2-alpine/"
+    image: 
+    # IP Address type of the Container Group. Accepted Values are { Private, Public }
+    ip-address: # optional, default is Public
+    # Location where the Container will be deployed
+    location: 
+    # The Log Analytics Workspace Name or Id
+    log-analytics-workspace: # optional
+    # The Log Analytics Workspace Key
+    log-analytics-workspace-key: # optional
+    # The Log type to be used. Accepted Values are { ContainerInsights, ContainerInstanceLogs }
+    log-type: # optional
+    # Required Memory of the Containers in GB, accurate to one decimal place
+    memory: # optional, default is 1.5
+    # Name of the Container Group Instance
+    name: 
+    # The OS type of the Containers. Accepted Values are  { Linux, Windows }
+    os-type: # optional, default is Linux
+    # The Ports to Open on the Container. Space seperate the ports for multiple values
+    ports: # optional, default is 80
+    # The Network protocol to use. Accepted Values are { TCP, UDP }
+    protocol: # optional, default is TCP
+    # The container image registry login server
+    registry-login-server: # optional, default is 
+    # Username to log in Container Image Registry Server
+    registry-username: # optional, default is 
+    # Password to log in Container Image Registry Server
+    registry-password: # optional, default is 
+    # Restart Policy for the container(s). Accepted Values are { Always, OnFailure, Never }
+    restart-policy: # optional, default is Always
+    # List of secure environment variables for the container. Space seperated values in "key=value" format
+    secure-environment-variables: # optional, default is 
+    - name: Deploy Azure Resource Manager (ARM) Template
+  uses: Azure/arm-deploy@v1
+  with:
+    # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'managementgroup', 'subscription'
+    scope: 
+    # Override the Subscription Id set by Azure Login.
+    subscriptionId: # optional
+    # Specify the Id for the Management Group, only required for Management Group Deployments.
+    managementGroupId: # optional
+    # Provide the target region, only required for management Group or Subscription deployments.
+    region: # optional
+    # Provide the name of a resource group, only required for resource Group deployments.
+    resourceGroupName: # optional
+    # Specify the path or URL to the Azure Resource Manager template.
+    template: 
+    # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
+    deploymentMode: # optional
+    # Specifies the name of the resource group deployment to create.
+    deploymentName: # optional
+    # Supply deployment parameter values.
+    parameters: # optional
+    # Specify whether to fail the action if some data is written to stderr stream of az cli. Valid values are: true, false
+    failOnStdErr: # optional, default is true
+    - name: Azure WebApp
+  uses: Azure/webapps-deploy@v2
+  with:
+    # Name of the Azure Web App
+    app-name: 
+    # Applies to Web Apps(Windows and Linux) and Web App Containers(linux). Multi container scenario not supported. Publish profile (*.publishsettings) file contents with Web Deploy secrets
+    publish-profile: # optional
+    # Enter an existing Slot other than the Production slot
+    slot-name: # optional, default is production
+    # Applies to Web App only: Path to package or folder. *.zip, *.war, *.jar or a folder to deploy
+    package: # optional, default is .
+    # Applies to Web App Containers only: Specify the fully qualified container image(s) name. For example, 'myregistry.azurecr.io/nginx:latest' or 'python:3.7.2-alpine/'. For multi-container scenario multiple container image names can be provided (multi-line separated)
+    images: 
+    # Applies to Web App Containers only: Path of the Docker-Compose file. Should be a fully qualified path or relative to the default working directory. Required for multi-container scenario
+    configuration-file: # optional
+    # Enter the start up command. For ex. dotnet run or dotnet run
+    startup-command: # optional
+    - name: Azure App Configuration Sync
+  uses: Azure/AppConfiguration-Sync@v1.1.2
+  with:
+    # Path to the configuration file in the repo, relative to the repo root. Also supports glob patterns and multiple files
+    configurationFile: 
+    # Format of the configuration file. Valid values are: json, yaml, properties
+    format: 
+    # Connection string for the App Configuration instance
+    connectionString: 
+    # Separator used when flattening the configuration file to key-value pairs
+    separator: 
+    # Specifies whether to use a strict sync which will make the App Configuration instance exactly match the configuration file (deleting key-values not in the configuration file). Defaults to false
+    strict: # optional
+    # Prefix that will be added to the front of the keys
+    prefix: # optional
+    # Label to use when setting the key-value pairs. If not specified, a null label will be used
+    label: # optional
+    # Max depth (positive number) for flattening the configuration file
+    depth: # optional
+    # Stringified form of a JSON object with the following shape: { [propertyName: string]: string; }
+    tags: # optional
+    # Content type associated with the values
+    contentType: # optional
+    - name: Azure Machine Learning Workspace
+  uses: Azure/aml-workspace@v1.25.0
+  with:
+    # Paste output of `az ad sp create-for-rbac --name <your-sp-name> --role contributor --scopes /subscriptions/<your-subscriptionId>/resourceGroups/<your-rg> --sdk-auth` as value of secret variable: AZURE_CREDENTIALS
+    azure_credentials: 
+    # JSON file including the parameters of the workspace.
+    parameters_file: # optional, default is workspace.json
+    - name: Azure Machine Learning Workspace
+  uses: Azure/aml-workspace@v1.25.0
+  with:
+    # Paste output of `az ad sp create-for-rbac --name <your-sp-name> --role contributor --scopes /subscriptions/<your-subscriptionId>/resourceGroups/<your-rg> --sdk-auth` as value of secret variable: AZURE_CREDENTIALS
+    azure_credentials: 
+    # JSON file including the parameters of the workspace.
+    parameters_file: # optional, default is workspace.json
+    - name: Azure Machine Learning Compute Action
+  uses: Azure/aml-compute@v1.25.0
+  with:
+    # Paste output of `az ad sp create-for-rbac --name <your-sp-name> --role contributor --scopes /subscriptions/<your-subscriptionId>/resourceGroups/<your-rg> --sdk-auth` as value of secret variable: AZURE_CREDENTIALS
+    azure_credentials: 
+    # JSON file including the parameters of the compute.
+    parameters_file: # default is compute.json
+    - name: Azure Machine Learning Run Action
+  uses: Azure/aml-run@v1.25.0
+  with:
+    # Paste output of `az ad sp create-for-rbac --name <your-sp-name> --role contributor --scopes /subscriptions/<your-subscriptionId>/resourceGroups/<your-rg> --sdk-auth` as value of secret variable: AZURE_CREDENTIALS
+    azure_credentials: 
+    # JSON file including the parameters of the run.
+    parameters_file: # default is run.json
+    - name: Azure Machine Learning Register Model Action
+  uses: Azure/aml-registermodel@v1.25.0
+  with:
+    # Paste output of `az ad sp create-for-rbac --name <your-sp-name> --role contributor --scopes /subscriptions/<your-subscriptionId>/resourceGroups/<your-rg> --sdk-auth` as value of secret variable: AZURE_CREDENTIALS
+    azure_credentials: 
+    # ID of the run or pipeline run for which a model is to be registered
+    run_id: # optional
+    # Experiment name to which the run belongs to
+    experiment_name: # optional
+    # JSON file including the parameters for registering the model.
+    parameters_file: # default is registermodel.json
+    - name: Azure Machine Learning Deploy Action
+  uses: Azure/aml-deploy@v1.25.0
+  with:
+    # Paste output of `az ad sp create-for-rbac --name <your-sp-name> --role contributor --scopes /subscriptions/<your-subscriptionId>/resourceGroups/<your-rg> --sdk-auth` as value of secret variable: AZURE_CREDENTIALS
+    azure_credentials: 
+    # Name of the model that will be deployed
+    model_name: 
+    # Version of the model that will be deployed
+    model_version: 
+    # JSON file including the parameters for deployment. This looks in the .ml/.azure/ directory
+    parameters_file: # default is deploy.json
+    - name: Flic Triggered Action
+  # You may pin to the exact commit or the version.
+  # uses: grust101/flic_triggered_action@02cf151357637ee82d013c4dacf3a64b6a5dd6f8
+  uses: grust101/flic_triggered_action@1.0
+  - name: Push to master
+  # You may pin to the exact commit or the version.
+  # uses: tcitry/push-to-master@17c179699110423dcc7db2d9ddfe3481cf0da596
+  uses: tcitry/push-to-master@v1.0
+  - name: s3cmd for GitHub Actions
+  # You may pin to the exact commit or the version.
+  # uses: jusbrasil/github-action-s3cmd@33423cabd2a73c37ae5518d50db1ad4c3d2ca792
+  uses: jusbrasil/github-action-s3cmd@1.0.0
+  - name: Trigger Envoyer Deployment
+  # You may pin to the exact commit or the version.
+  # uses: nerdify/envoyer-action@898c858ced062e8641816a2a8ed257abfb5491d1
+  uses: nerdify/envoyer-action@1.0.0
+  - name: Publish Hugo Site
+  # You may pin to the exact commit or the version.
+  # uses: tcitry/publish-hugo-site@b39b3c37d0e183bc70f8736869200846ffb1458c
+  uses: tcitry/publish-hugo-site@v1.0
+  - name: SCP Files
+  # You may pin to the exact commit or the version.
+  # uses: appleboy/scp-action@b476d5806f2a4c1ed5902a87fa91b0623cac7258
+  uses: appleboy/scp-action@v0.0.1
+  - name: GitHub Action to Push Subdirectories to Another Repo
+  # You may pin to the exact commit or the version.
+  # uses: johno/actions-push-subdirectories@5d36299d310cf771736a82ada7708d5c328526e9
+  uses: johno/actions-push-subdirectories@v0.0.1
+  - name: Bugsnag build reporting
+  # You may pin to the exact commit or the version.
+  # uses: sazap10/bugsnag-builds-action@253d21a34e46c41af96987f5f62a3bd6bcce1c68
+  uses: sazap10/bugsnag-builds-action@v1.0.3
+  - name: Trigger GitLab CI
+  # You may pin to the exact commit or the version.
+  # uses: appleboy/gitlab-ci-action@d44d4e7f04217b22b2a2481a3c646998bf18c10e
+  uses: appleboy/gitlab-ci-action@0.0.1
+  - name: Trigger Jenkins Job
+  # You may pin to the exact commit or the version.
+  # uses: appleboy/jenkins-action@b9936d50c66383ffb58f3504c6e1348d94425c59
+  uses: appleboy/jenkins-action@0.0.1
+  - name: action-push
+  # You may pin to the exact commit or the version.
+  # uses: ludeeus/action-push@0b7c1175655379c008f42bbaf524caa79cf89ec1
+  uses: ludeeus/action-push@0.0.1
+  - name: GitHub Action for WP Engine Git Deployment
+  # You may pin to the exact commit or the version.
+  # uses: jovrtn/github-action-wpengine-git-deploy@78e43d6eea9f4e870dfa9501625000e87022fa63
+  uses: jovrtn/github-action-wpengine-git-deploy@0.1.2
+  - name: GitHub Action for NPM/Chrome
+  # You may pin to the exact commit or the version.
+  # uses: daleobrien/npm-with-chrome-browser-action@dfe13b04e9f0fcea5e77f1e1692487282bca0970
+  uses: daleobrien/npm-with-chrome-browser-action@v1.0.1
+  - name: fission
+  # You may pin to the exact commit or the version.
+  # uses: fission/action@e19f321445e3b4d4d222851eb5a08de22129e024
+  uses: fission/action@v1.0.0
+  - name: Bash for GitHub Actions
+  # You may pin to the exact commit or the version.
+  # uses: jcblw/bash@7bad2d963d87fdb2276647306e579de3df2c6000
+  uses: jcblw/bash@1.0.0
+  - name: GitHub Action for Sanity.io
+  # You may pin to the exact commit or the version.
+  # uses: sanity-io/github-action-sanity@072833fa1dbf29c5d0b8e4587b88541fb279fa67
+  uses: sanity-io/github-action-sanity@v0.1-alpha
+  - name: All in one project
+  # You may pin to the exact commit or the version.
+  # uses: masutaka/github-actions-all-in-one-project@630cf83d0b14f1ba7b5e201523e8e07c2c8cd3fa
+  uses: masutaka/github-actions-all-in-one-project@1.1.0
+  - name: Node App Helper Actions
+  # You may pin to the exact commit or the version.
+  # uses: guahanweb/action-nodejs-gh-pages@09ff3f9fdd0eb69b0df9d1d96bb22ffed85167a4
+  uses: guahanweb/action-nodejs-gh-pages@1.0.0
+  - name: rsync deployments
+  # You may pin to the exact commit or the version.
+  # uses: contention/rsync-deployments@980b08d70e94c4ac0169ee5c5acc9ace2fe8ccd4
+  uses: contention/rsync-deployments@v1.0.0
+  - name: GitHub Action for Serverless Framework
+  # You may pin to the exact commit or the version.
+  # uses: aaronpanch/action-serverless@624ff9350e298816649b96aa6f0dc5bbbd27ec59
+  uses: aaronpanch/action-serverless@v1.0.0
+  - name: Pulumi Command
+  # You may pin to the exact commit or the version.
+  # uses: DavidJFelix/docker-pulumi@c3813db6047433c32710a56a0022b9fbc6118bee
+  uses: DavidJFelix/docker-pulumi@1.0.3
+  - name: Create vSphere Tag
+  # You may pin to the exact commit or the version.
+  # uses: lamw/create-vsphere-tag-action@e8c4fab68c54bfd51b068dd3999d5075ee2cc001
+  uses: lamw/create-vsphere-tag-action@0.1
+  - name: Keel Webhook
+  # You may pin to the exact commit or the version.
+  # uses: rkusa/keel-webhook-action@66a977c642c8d4b6b211a5db2babafb2367ea08b
+  uses: rkusa/keel-webhook-action@1.0.0
+  - name: Deploy VM from vSphere Content Library
+  # You may pin to the exact commit or the version.
+  # uses: lamw/deploy-vm-from-content-library-action@fb7e7f880ea5d4316607f7819e582b8ad4c51698
+  uses: lamw/deploy-vm-from-content-library-action@0.1
+  - name: Sentry.io release management
+  # You may pin to the exact commit or the version.
+  # uses: NSCoder/sentry-release@66f31d01221f0e54ff53b77e9426c3099f0ca636
+  uses: NSCoder/sentry-release@v1.0.0
+  - name: Deploy Saber Website to GitHub Pages
+  # You may pin to the exact commit or the version.
+  # uses: saberland/deploy-gh-pages@4265cf0f3348c7a08afe5cbfa0cdff4740db80d1
+  uses: saberland/deploy-gh-pages@v0.1.1
+  - name: Archive using zip or tar
+  # You may pin to the exact commit or the version.
+  # uses: NSCoder/archive-action@10750a36d4f79d825a156afa7efd3ae78d0b6eb7
+  uses: NSCoder/archive-action@v1.0.0
+  - name: Screeps Deployer
+  # You may pin to the exact commit or the version.
+  # uses: aphistic/screeps-deployer@40b7f00c16c8d20309b1f3aeda7d5a2d21c5b28f
+  uses: aphistic/screeps-deployer@v0.1.0
+  - name: GitHub Action for s3_website
+  # You may pin to the exact commit or the version.
+  # uses: justinharringa/actions-s3_website@24df1578a808ba36ee3356dc9003db78561c18e7
+  uses: justinharringa/actions-s3_website@v1.0
+  - name: Github Action for Gatsby CLI
+  # You may pin to the exact commit or the version.
+  # uses: jzweifel/gatsby-cli-github-action@efa9ab058a75e8c8db6ba6094f4b14c53e96f3fc
+  uses: jzweifel/gatsby-cli-github-action@v1.0.0
+  - name: Cloudflare DNS
+  # You may pin to the exact commit or the version.
+  # uses: xorilog/cloudflare-dns-action@a2d9c83646418dc2a17563f55880a345b4480315
+  uses: xorilog/cloudflare-dns-action@1.0.0
+  - name: Serverless
+  # You may pin to the exact commit or the version.
+  # uses: serverless/github-action@8f96a6db886d4ce30c6063dd9919a8a1a4a6d9cf
+  uses: serverless/github-action@v1.53.0
+  - name: CloudFormation Deploy Action
+  # You may pin to the exact commit or the version.
+  # uses: MGenteluci/cloudformation-deploy-action@3af8ba5281fa1f66df2850c72eece2ccbedb63d4
+  uses: MGenteluci/cloudformation-deploy-action@v1.4.0
+  - name: Deliverybot Deployment Status
+  # You may pin to the exact commit or the version.
+  # uses: deliverybot/deployment-status@1ae76f31c9fb93680f1e34ff000fc931520b6d63
+  uses: deliverybot/deployment-status@v1.0.0
+  with:
+    # Deployment status to set the action as
+    state: # optional, default is pending
+    # Github repository token
+    token: # optional
+    # Log url location
+    log-url: # optional
+    # Descriptive message about the deployment state
+    description: # optional
+    - name: Deliverybot Helm Action
+  # You may pin to the exact commit or the version.
+  # uses: deliverybot/helm@9013bbf586d8af9a4f36e7f99271c6f2533a7648
+  uses: deliverybot/helm@v1.5.0
+  with:
+    # Helm release name. Will be combined with track if set. (required)
+    release: # optional
+    # Kubernetes namespace name. (required)
+    namespace: # optional
+    # Helm chart path. If set to "app" this will use the built in helm chart found in this repository. (required)
+    chart: # optional
+    # Helm chart values, expected to be a YAML or JSON string.
+    values: # optional
+    # Task name. If the task is "remove" it will remove the configured helm release.
+    dry-run: # optional
+    # Github repository token. If included and the event is a deployment the deployment_status event will be fired.
+    token: # optional
+    # Additional value files to apply to the helm chart. Expects JSON encoded array or a string.
+    value-files: # optional
+    # Secret variables to include in value file interpolation. Expects JSON encoded map.
+    secrets: # optional
+    # Version of the app, usually commit sha works here.
+    version: # optional
+    - name: Deploy with rsync
+  # You may pin to the exact commit or the version.
+  # uses: AEnterprise/rsync-deploy@0c7c5cb52734a962d94343e4a9db6135e70b48f4
+  uses: AEnterprise/rsync-deploy@v1.0
+  - name: now-deploy-preview-comment
+  # You may pin to the exact commit or the version.
+  # uses: iam4x/now-deploy-preview-comment@dfa7051b90a7920b544c4688b9a9aca29df7c55f
+  uses: iam4x/now-deploy-preview-comment@v1.0.1
+  - name: eksctl-cmd
+  # You may pin to the exact commit or the version.
+  # uses: robatwave/github-action-eksctl@caba58ce9419920c1036f21c1f6c75db20674cc4
+  uses: robatwave/github-action-eksctl@0.1.2
+  - name: kubectl-eks-cmd
+  # You may pin to the exact commit or the version.
+  # uses: robatwave/github-action-eks-kubectl@8067c69ae894e2377206b905894ef9b1de2f4bec
+  uses: robatwave/github-action-eks-kubectl@0.1
+  - name: Hugo for GitHub Organization Pages
+  # You may pin to the exact commit or the version.
+  # uses: StevenACoffman/hugo-deploy-gh-org-pages@7c9ce11c0fd3a1be6908b2745fd666e1f7c5ffdb
+  uses: StevenACoffman/hugo-deploy-gh-org-pages@v1.0.4
+  - name: Node Draft Releaser
+  # You may pin to the exact commit or the version.
+  # uses: JamesMGreene/node-draft-releaser@9b34c061e11305140724d3b0076cb799f8fd29c3
+  uses: JamesMGreene/node-draft-releaser@v1.1.2
+  with:
+    # Should this be allowed to publish an existing Draft Release that is not slated to create a Tag matching the new version number?
+    allow_unmatched_draft_tag: # optional, default is true
+    # Should this Action be allowed to update the name of an existing Draft Release if its current name is a different valid SemVer version number?
+    allow_release_name_update: # optional, default is true
+    - name: Deploy Pypi
+  # You may pin to the exact commit or the version.
+  # uses: remorses/pypi@c5a97a333f4d4d59cea6ec2e6a17c15e3241be29
+  uses: remorses/pypi@v3
+  with:
+    # setup file
+    setup_file: # optional, default is ./setup.py
+    # username
+    username: 
+    # password
+    password: 
+    - name: Firefox Addon Action
+  # You may pin to the exact commit or the version.
+  # uses: trmcnvn/firefox-addon@0d05671269b82c69c3f22ed86d8e772e89d47cf4
+  uses: trmcnvn/firefox-addon@v1
+  with:
+    # Your addons UUID as defined by Mozilla
+    uuid: # optional
+    # Path to your addons .xpi file
+    xpi: # optional
+    # Path to your addons manifest.json file to read the version
+    manifest: # optional
+    # Firefox Addon API Key
+    api-key: # optional
+    # Firefox Addon API Secret
+    api-secret: # optional
+    - name: Chrome Addon Action
+  # You may pin to the exact commit or the version.
+  # uses: trmcnvn/chrome-addon@7fc5a5ad3ff597dc64d6a13de7dcaa8515328be7
+  uses: trmcnvn/chrome-addon@v2
+  with:
+    # ID of the extension that you are updating
+    extension: # optional
+    # Path to a .zip of your addon
+    zip: # optional
+    # Google OAuth2 client id
+    client-id: # optional
+    # Google OAuth2 client secret
+    client-secret: # optional
+    # Google OAuth2 refresh token
+    refresh-token: # optional
+    - name: Trusted Hugo
+  # You may pin to the exact commit or the version.
+  # uses: chris-short/github-action-hugo@ef0308aacb64a873258d76c54291dd1d5283bc34
+  uses: chris-short/github-action-hugo@v0.1.2
+  - name: Pivotal Cloud Foundry (PCF) CLI
+  # You may pin to the exact commit or the version.
+  # uses: d3sandoval/cloud-foundry-action@c23c018b9cee8d7b8cd1fb0ede7b9d3d8aeb013c
+  uses: d3sandoval/cloud-foundry-action@1.1.1
+  - name: Github Action for rclone
+  # You may pin to the exact commit or the version.
+  # uses: wei/rclone@b58f8151c60e88c344046a5eb98852987b0440a5
+  uses: wei/rclone@v1.1.1
+  - name: Firebase GitHub Action
+  # You may pin to the exact commit or the version.
+  # uses: jonahsnider/firebase-action@ec888266077d6a87bd4297045706b32b1b802062
+  uses: jonahsnider/firebase-action@1.0.7
+  - name: Bash Command Lines for GitHub Actions
+  # You may pin to the exact commit or the version.
+  # uses: jdickey/bash@bc09809bde62634bf1f6fdfc820428e7ac10eea4
+  uses: jdickey/bash@v.1.1.1
+  - name: Deploy to Dokku
+  # You may pin to the exact commit or the version.
+  # uses: landmaj/github-action-dokku@ba497151b3f0dc75237308634157fd16774e19a2
+  uses: landmaj/github-action-dokku@1.0
+  with:
+    # Private key to use for SSH authentication.
+    PRIVATE_KEY: 
+    # Public key to use for SSH authentication.
+    PUBLIC_KEY: 
+    # Name of the application (as created in Dokku).
+    PROJECT: 
+    # 
+    HOST: 
+    # Branch used to deploy the application.
+    BRANCH: # optional, default is master
+    - name: Auth0 Deploy CLI Action
+  # You may pin to the exact commit or the version.
+  # uses: twyla-ai/action-auth0-deploy-cli@144b6ab32e2d1830ef68d35eed35f8c0df1bcf5b
+  uses: twyla-ai/action-auth0-deploy-cli@v1.0.0
+  with:
+    # Auth0 Domain
+    domain: 
+    # Auth0 Client ID
+    id: 
+    # Auth0 Client Secret
+    secret: 
+    - name: git-restore-mtime
+  # You may pin to the exact commit or the version.
+  # uses: chetan/git-restore-mtime-action@db9ef72149fd675db57788a1e61b3435610dfe24
+  uses: chetan/git-restore-mtime-action@v1.0
+  - name: Deployment Action
+  # You may pin to the exact commit or the version.
+  # uses: chrnorm/deployment-action@0a0479c8ab41cd336ddc266342ca0a1c54727a72
+  uses: chrnorm/deployment-action@v1.2.0
+  with:
+    # Initial status for the deployment
+    initial_status: # optional, default is pending
+    # The reference for the deployment
+    ref: # optional
+    # Github repository token
+    token: 
+    # Target url location
+    target_url: # optional
+    # Descriptive message about the deployment
+    description: # optional
+    # The name of the environment for the deployment
+    environment: # optional, default is production
+    - name: Tag Buil Publish Docker
+  # You may pin to the exact commit or the version.
+  # uses: AhnSeongHyun/action-tag-docker-build-push@1a6aacb1cb03fba6cfe278ea41c01144f829c0e3
+  uses: AhnSeongHyun/action-tag-docker-build-push@v1.0.0
+  - name: Secure Actions Webhook
+  # You may pin to the exact commit or the version.
+  # uses: koraykoska/secure-actions-webhook@ea1321b2b866285512248ca6dff616a7695f6de3
+  uses: koraykoska/secure-actions-webhook@0.1.2
+  - name: Delete a distribution from DeployGate
+  # You may pin to the exact commit or the version.
+  # uses: jmatsu/dg-delete-distribution-action@0cf3d07827a803d14288ea9ac436acb4f25c5c1f
+  uses: jmatsu/dg-delete-distribution-action@0.2
+  with:
+    # 
+    api_token: # optional
+    # 
+    app_owner_name: # optional
+    # 
+    app_id: # optional
+    # A platform name whic is either Andoird or iOS.
+    platform: # default is android
+    # A name of a distribution to delete. Use branch name unless specified.
+    distribution_name: # optional
+    # A pattern to ignore names which you do not want to destroy. The syntax is based on Bash 4.x
+    exclude_pattern: # optional, default is 
+    # Specify true if this action should not exit with any failure status when calling DeployGate API.
+    ignore_api_failure: # optional
+    - name: Cloud Run
+  # You may pin to the exact commit or the version.
+  # uses: stefda/action-cloud-run@071eab05c6c049f7736ff6102bb37055e1bf07a4
+  uses: stefda/action-cloud-run@v1.0
+  with:
+    # Name of the docker image
+    image: 
+    # Name of the service in Cloud Run
+    service: 
+    # GCP project
+    project: 
+    # GCP region
+    region: 
+    # GCP service key with storage and run permissions
+    service key: 
+    - name: AWS Assume Role Action
+  # You may pin to the exact commit or the version.
+  # uses: abatilo/aws-assume-role-action@ea350d5b2fb8cebc45ba7f9e48291e3f73f69ef0
+  uses: abatilo/aws-assume-role-action@v1.1.0
+  - name: Github Build & Deploy Action
+  # You may pin to the exact commit or the version.
+  # uses: jeoy/github-deploy-actions@3f8d1ed7d1d75b19be105a68af17a9a627d646cd
+  uses: jeoy/github-deploy-actions@v1.0.1
+  - name: Semver Release
+  # You may pin to the exact commit or the version.
+  # uses: K-Phoen/semver-release-action@a73a9ae747cbcb4fd7d26c64ef8e3d1d7e92759e
+  uses: K-Phoen/semver-release-action@v1.2.0
+  with:
+    # Branch to tag
+    release_branch: # default is master
+    # Release strategy
+    release_strategy: # default is release
+    # Tag to use
+    tag: # optional
+    - name: Build MAM
+  # You may pin to the exact commit or the version.
+  # uses: hyoo-ru/mam_build@134c7fea0054bd81b397c66686b70f4a603d97f7
+  uses: hyoo-ru/mam_build@v1.0.2
+  with:
+    # Path to your module in global MAM scope that you want to build
+    module: 
+    # Path to your package in global MAM scope
+    package: # optional
+    - name: Hugo for GitHub Pages
+  # You may pin to the exact commit or the version.
+  # uses: jenkins-zh/hugo-gh-actions@ba17fcea77f300a953daf2dabd5b42a748f4fe8a
+  uses: jenkins-zh/hugo-gh-actions@v0.0.1
+  - name: SSH Execute Commands
+  # You may pin to the exact commit or the version.
+  # uses: JimCronqvist/action-ssh@1c03e01b4ac39da814b45cfd2924c2df0ff1396f
+  uses: JimCronqvist/action-ssh@0.1.1
+  with:
+    # Command(s) to execute on the remote server.
+    command: 
+    # Hostname or IP address of the remote server(s). Separate multiple servers with a blank space. Example: 'user@mydomain.com:22 user@otherdomain.com:2222'
+    hosts: 
+    # The private key (id_rsa) content for authenticating to the SSH server(s). Recommended to store it as a GitHub Secret.
+    privateKey: 
+    # Used to view all environment variables in the logs, please note that this could expose sensitive data.
+    debug: # optional
+    

@@ -1,6 +1,10 @@
 ---
 name: Doc issue
 about: Create an issue to help us improve
+title: ''
+labels: ''
+assignees: ''
+
 ---
 
 # Before you open an issue

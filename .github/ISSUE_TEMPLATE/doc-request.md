@@ -1,6 +1,10 @@
 ---
 name: Doc request
 about: Request a new topic to help us improve
+title: ''
+labels: ''
+assignees: ''
+
 ---
 
 **Help us make content visible**
