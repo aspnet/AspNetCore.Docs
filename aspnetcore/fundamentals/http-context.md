@@ -1,7 +1,7 @@
 ---
 title: Access HttpContext in ASP.NET Core
 author: coderandhiker
-description: Learn how to access HttpContext in ASP.NET Core.
+description: HttpContext in ASP.NET Core. HttpContext is not thread-safe and can throw NullReferenceException.
 monikerRange: '>= aspnetcore-2.1'
 ms.author: riande
 ms.custom: mvc
@@ -138,6 +138,7 @@ To safely perform background work with `HttpContext` data:
 
 * Copy the required data during request processing.
 * Pass the copied data to a background task.
+* Do ***not*** reference `HttpContext` data in parallel tasks. Extract the data needed from the context before starting the parallel tasks.
 
 To avoid unsafe code, never pass the `HttpContext` into a method that performs background work. Pass the required data instead. In the following example, `SendEmailCore` is called to start sending an email. The `correlationId` is passed to `SendEmailCore`, not the `HttpContext`. Code execution doesn't wait for `SendEmailCore` to complete:
 
