@@ -261,9 +261,47 @@ The following code demonstrates a typical manual reconnection approach:
 1. A function (in this case, the `start` function) is created to start the connection.
 1. Call the `start` function in the connection's `onclose` event handler.
 
-[!code-javascript[](javascript-client/samples/3.x/SignalRChat/wwwroot/chat.js?range=30-40)]
+[!code-javascript[](javascript-client/samples/3.x/SignalRChat/wwwroot/chat.js?range=30-46)]
 
-A real-world implementation would use an exponential back-off or retry a specified number of times before giving up.
+A production implementation would use an exponential back-off or retry a specified number of times before giving up.
+
+## Browser sleeping tab
+
+Some browsers have a tab freezing or sleeping feature to reduce computer resource usage for inactive tabs. This can cause SignalR connections to close and may result in an unwanted user experience. Browsers use heuristics to figure out if a tab should be put to sleep, such as:
+
+* Playing audio
+* Holding a web lock
+* Holding an `IndexedDB` lock
+* Being connected to a USB device
+* Capturing video or audio
+* Being mirrored
+* Capturing a window or display
+
+> [!NOTE]
+> These heuristics may change over time or differ between browsers. Check your support matrix and figure out what method works best for your scenarios.
+
+To avoid putting an app to sleep, the app should trigger one of the heuristics that the browser uses.
+
+The following code example shows how to use a [Web Lock](https://developer.mozilla.org/docs/Web/API/Web_Locks_API) to keep a tab awake and avoid an unexpected connection closure.
+
+```javascript
+var lockResolver;
+if (navigator && navigator.locks && navigator.locks.request) {
+    const promise = new Promise((res) => {
+        lockResolver = res;
+    });
+    
+    navigator.locks.request('unique_lock_name', { mode: "shared" }, () => {
+        return promise;
+    });
+}
+```
+
+For the preceding code example:
+
+* Web Locks are experimental. The conditional check confirms that the browser supports Web Locks.
+* The promise resolver (`lockResolver`) is stored so that the lock can be released when it's acceptable for the tab to sleep.
+* When closing the connection, the lock is released by calling `lockResolver()`. When the lock is released, the tab is allowed to sleep.
 
 ## Additional resources
 
