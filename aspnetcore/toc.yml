@@ -1450,3 +1450,7 @@
   href: /dotnet/api/?view=aspnetcore-2.2
 - name: Contribute
   href: https://github.com/dotnet/AspNetCore.Docs/blob/main/CONTRIBUTING.md
+- name: Test 1
+  uid: version-test-1
+- name: Test 2
+  uid: version-test-2
