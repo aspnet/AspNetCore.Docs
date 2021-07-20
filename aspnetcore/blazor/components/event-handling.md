@@ -157,9 +157,9 @@ Custom events with custom event arguments are generally enabled with the followi
 
    ```html
    <script>
-       Blazor.registerCustomEventType('customevent', {
-           createEventArgs: eventArgsCreator;
-       });
+     Blazor.registerCustomEventType('customevent', {
+       createEventArgs: eventArgsCreator;
+     });
    </script>
    ```
 

@@ -251,6 +251,81 @@ In the following example:
 > [!NOTE]
 > Changing the <xref:Microsoft.AspNetCore.Components.Forms.EditContext> after its assigned is **not** supported.
 
+::: moniker range=">= aspnetcore-6.0"
+
+## Multiple option selection with the `InputSelect` component
+
+Binding supports [`multiple`](https://developer.mozilla.org/docs/Web/HTML/Attributes/multiple) option selection with the <xref:Microsoft.AspNetCore.Components.Forms.InputSelect%601> component. The [`@onchange`](xref:mvc/views/razor#onevent) event provides an array of the selected options via [event arguments (`ChangeEventArgs`)](xref:blazor/components/event-handling#event-arguments). The value must be bound to an array type, and binding to an array type makes the [`multiple`](https://developer.mozilla.org/docs/Web/HTML/Attributes/multiple) attribute optional on the <xref:Microsoft.AspNetCore.Components.Forms.InputSelect%601> tag.
+
+In the following example, the user must select at least two starship classifications but no more than three classifications.
+
+`Pages/BindMultipleWithInputSelect.razor`:
+
+```razor
+@page "/bind-multiple-with-inputselect"
+@using System.ComponentModel.DataAnnotations 
+@using Microsoft.Extensions.Logging
+@inject ILogger<BindMultipleWithInputSelect> Logger 
+
+<h1>Bind Multiple <code>InputSelect</code>Example</h1>
+
+<EditForm EditContext="@editContext" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <p>
+        <label>
+            Select one or more classifications (Minimum: 2, Maximum: 3):
+            <InputSelect @bind-Value="starship.SelectedClassification">
+                <option value="@Classification.Exploration">Exploration</option>
+                <option value="@Classification.Diplomacy">Diplomacy</option>
+                <option value="@Classification.Defense">Defense</option>
+                <option value="@Classification.Research">Research</option>
+            </InputSelect>
+        </label>
+    </p>
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+<p>
+    Selected Classifications: 
+    @string.Join(", ", starship.SelectedClassification)
+</p>
+
+@code {
+    private EditContext editContext;
+    private Starship starship = new();
+
+    protected override void OnInitialized()
+    {
+        editContext = new(starship);
+    }
+
+    private void HandleValidSubmit()
+    {
+        Logger.LogInformation("HandleValidSubmit called");
+    }
+
+    private class Starship
+    {
+        [Required, MinLength(2), MaxLength(3)]
+        public Classification[] SelectedClassification { get; set; } =
+            new[] { Classification.Diplomacy };
+    }
+
+    private enum Classification { Exploration, Diplomacy, Defense, Research }
+}
+```
+
+For information on how empty strings and `null` values are handled in data binding, see the [Binding `InputSelect` options to C# object `null` values](#binding-inputselect-options-to-c-object-null-values) section.
+
+::: moniker-end
+
+## Binding `InputSelect` options to C# object `null` values
+
+For information on how empty strings and `null` values are handled in data binding, see <xref:blazor/components/data-binding#binding-select-element-options-to-c-object-null-values>.
+
 ::: moniker range=">= aspnetcore-5.0"
 
 ## Display name support
@@ -1107,30 +1182,6 @@ The following `RadioButtonExample` component uses the preceding `InputRadio` com
     }
 }
 ```
-
-::: moniker-end
-
-## Binding `<select>` element options to C# object `null` values
-
-There's no sensible way to represent a `<select>` element option value as a C# object `null` value, because:
-
-* HTML attributes can't have `null` values. The closest equivalent to `null` in HTML is absence of the HTML `value` attribute from the `<option>` element.
-* When selecting an `<option>` with no `value` attribute, the browser treats the value as the *text content* of that `<option>`'s element.
-
-The Blazor framework doesn't attempt to suppress the default behavior because it would involve:
-
-* Creating a chain of special-case workarounds in the framework.
-* Breaking changes to current framework behavior.
-
-::: moniker range=">= aspnetcore-5.0"
-
-The most plausible `null` equivalent in HTML is an *empty string* `value`. The Blazor framework handles `null` to empty string conversions for two-way binding to a `<select>`'s value.
-
-::: moniker-end
-
-::: moniker range="< aspnetcore-5.0"
-
-The Blazor framework doesn't automatically handle `null` to empty string conversions when attempting two-way binding to a `<select>`'s value. For more information, see [Fix binding `<select>` to a null value (dotnet/aspnetcore #23221)](https://github.com/dotnet/aspnetcore/pull/23221).
 
 ::: moniker-end
 

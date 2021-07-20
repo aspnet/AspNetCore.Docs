@@ -75,6 +75,92 @@ Razor attribute binding is case sensitive:
 * `@bind` and `@bind:event` are valid.
 * `@Bind`/`@Bind:Event` (capital letters `B` and `E`) or `@BIND`/`@BIND:EVENT` (all capital letters) **are invalid**.
 
+::: moniker range=">= aspnetcore-6.0"
+
+## Multiple option selection with `<input>` elements
+
+Binding supports [`multiple`](https://developer.mozilla.org/docs/Web/HTML/Attributes/multiple) option selection with `<input>` elements. The [`@onchange`](xref:mvc/views/razor#onevent) event provides an array of the selected elements via [event arguments (`ChangeEventArgs`)](xref:blazor/components/event-handling#event-arguments). The value must be bound to an array type.
+
+`Pages/BindMultipleInput.razor`:
+
+```razor
+@page "/bind-multiple-input"
+
+<h1>Bind Multiple <code>input</code>Example</h1>
+
+<p>
+    <label>
+        Select one or more cars: 
+        <select @onchange="SelectedCarsChanged" multiple>
+            <option value="audi">Audi</option>
+            <option value="jeep">Jeep</option>
+            <option value="opel">Opel</option>
+            <option value="saab">Saab</option>
+            <option value="volvo">Volvo</option>
+        </select>
+    </label>
+</p>
+
+<p>
+    Selected Cars: @string.Join(", ", SelectedCars)
+</p>
+
+<p>
+    <label>
+        Select one or more cities: 
+        <select @bind="SelectedCities" multiple>
+            <option value="@("\"bal\"")">Baltimore</option>
+            <option value="@("\"la\"")">Los Angeles</option>
+            <option value="@("\"pdx\"")">Portland</option>
+            <option value="@("\"sf\"")">San Francisco</option>
+            <option value="@("\"sea\"")">Seattle</option>
+        </select>
+    </label>
+</p>
+
+<span>
+    Selected Cities: @string.Join(", ", SelectedCities)
+</span>
+
+@code {
+    public string[] SelectedCars { get; set; } = new string[] { };
+    public string[] SelectedCities { get; set; } = new[] { "\"bal\"", "\"sea\"" };
+
+    void SelectedCarsChanged(ChangeEventArgs e)
+    {
+        SelectedCars = (string[])e.Value;
+    }
+}
+```
+
+For information on how empty strings and `null` values are handled in data binding, see the [Binding `<select>` element options to C# object `null` values](#binding-select-element-options-to-c-object-null-values) section.
+
+::: moniker-end
+
+## Binding `<select>` element options to C# object `null` values
+
+There's no sensible way to represent a `<select>` element option value as a C# object `null` value, because:
+
+* HTML attributes can't have `null` values. The closest equivalent to `null` in HTML is absence of the HTML `value` attribute from the `<option>` element.
+* When selecting an `<option>` with no `value` attribute, the browser treats the value as the *text content* of that `<option>`'s element.
+
+The Blazor framework doesn't attempt to suppress the default behavior because it would involve:
+
+* Creating a chain of special-case workarounds in the framework.
+* Breaking changes to current framework behavior.
+
+::: moniker range=">= aspnetcore-5.0"
+
+The most plausible `null` equivalent in HTML is an *empty string* `value`. The Blazor framework handles `null` to empty string conversions for two-way binding to a `<select>`'s value.
+
+::: moniker-end
+
+::: moniker range="< aspnetcore-5.0"
+
+The Blazor framework doesn't automatically handle `null` to empty string conversions when attempting two-way binding to a `<select>`'s value. For more information, see [Fix binding `<select>` to a null value (dotnet/aspnetcore #23221)](https://github.com/dotnet/aspnetcore/pull/23221).
+
+::: moniker-end
+
 ## Unparsable values
 
 When a user provides an unparsable value to a databound element, the unparsable value is automatically reverted to its previous value when the bind event is triggered.
@@ -325,5 +411,5 @@ For an alternative approach suited to sharing data in memory and across componen
 
 * <xref:blazor/forms-validation>
 * [Binding to radio buttons in a form](xref:blazor/forms-validation#radio-buttons)
-* [Binding `<select>` element options to C# object `null` values in a form](xref:blazor/forms-validation#binding-select-element-options-to-c-object-null-values)
+* [Binding `InputSelect` options to C# object `null` values](xref:blazor/forms-validation#binding-inputselect-options-to-c-object-null-values)
 * [ASP.NET Core Blazor event handling: `EventCallback` section](xref:blazor/components/event-handling#eventcallback)
